@@ -1,10 +1,24 @@
+SRC := ./src
+SOURCES := $(wildcard $(SRC)/*.c)
+HEADERS := $(wildcard $(SRC)/*.h)
+ARTIFACTS := $(SOURCES:.c=.o)
+EXECUTABLE_NAME := 6502
+
+
 all: build run
 
-build: main.c
-	cc main.c -o 6502
+%.o : %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+build: $(ARTIFACTS)
+	$(CC) -o $(EXECUTABLE_NAME) $^
+
+
 
 run:
-	./6502
+	./$(EXECUTABLE_NAME)
 
 clean:
-	rm 6502 dump.bin
+	rm -f $(ARTIFACTS) $(EXECUTABLE_NAME)
+
+clean-build: clean build
