@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
-#include "memory.h"
+#include "bus.h"
 #include "6502_types.h"
 
 
@@ -26,9 +26,9 @@ Cpu* initCpu() {
 
 }
 
-void opUnknown(Cpu *cpu, Mem *mem){
-   printf( "Unrecognized opcode 0x%02x at 0x%04x\n", mem->ROM[cpu->PC], cpu->PC );
-   dumpRom(mem, "dump.bin");
+void opUnknown(Cpu *cpu, Bus *bus){
+   printf( "Unrecognized opcode 0x%02x at 0x%04x\n", bus->memory[cpu->PC], cpu->PC );
+   dumpBus(bus, "dump.bin");
    printf("Rom dumped!\n");
 
 }
@@ -49,8 +49,8 @@ static void setZN(Cpu *cpu, Byte val) {
 //*******************************************
 
 // immediate addressing mode (0xA9)
-void opLDA_imm(Cpu *cpu, Mem *mem) {
-   Byte val = mem->ROM[cpu->PC + 1];
+void opLDA_imm(Cpu *cpu, Bus *bus) {
+   Byte val = bus->memory[cpu->PC + 1];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
@@ -58,68 +58,68 @@ void opLDA_imm(Cpu *cpu, Mem *mem) {
 
 
 // zero page (0xA5)
-void opLDA_zp(Cpu *cpu, Mem *mem) {
-   Byte addr = mem->ROM[cpu->PC + 1];
-   Byte val = mem->ROM[addr];
+void opLDA_zp(Cpu *cpu, Bus *bus) {
+   Byte addr = bus->memory[cpu->PC + 1];
+   Byte val = bus->memory[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
 }
 
 // zero page with X offset (0xB5)
-void opLDA_zpX(Cpu *cpu, Mem *mem) {
-   Byte addr = (mem->ROM[cpu->PC + 1] + cpu->X) & 0xFF; // wrap around
-   Byte val = mem->ROM[addr];
+void opLDA_zpX(Cpu *cpu, Bus *bus) {
+   Byte addr = (bus->memory[cpu->PC + 1] + cpu->X) & 0xFF; // wrap around
+   Byte val = bus->memory[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
 }
 
 // absolute addressing mode (0xAD)
-void opLDA_abs(Cpu *cpu, Mem *mem) {
-   Addr addr = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
-   Byte val = mem->ROM[addr];
+void opLDA_abs(Cpu *cpu, Bus *bus) {
+   Addr addr = bus->memory[cpu->PC + 1] | (bus->memory[cpu->PC + 2] << 8);
+   Byte val = bus->memory[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 3;
 }
 
 // absolute with X offset (0xBD)
-void opLDA_absX(Cpu *cpu, Mem *mem) {
-   Addr base = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
+void opLDA_absX(Cpu *cpu, Bus *bus) {
+   Addr base = bus->memory[cpu->PC + 1] | (bus->memory[cpu->PC + 2] << 8);
    Addr addr = (base + cpu->X) & 0xFFFF; // wrap around
-   Byte val = mem->ROM[addr];
+   Byte val = bus->memory[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 3;
 }
 
 // absolute with Y offset (0xB9)
-void opLDA_absY(Cpu *cpu, Mem *mem) {
-   Addr base = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
+void opLDA_absY(Cpu *cpu, Bus *bus) {
+   Addr base = bus->memory[cpu->PC + 1] | (bus->memory[cpu->PC + 2] << 8);
    Addr addr = (base + cpu->Y) & 0xFFFF; // wrap around
-   Byte val = mem->ROM[addr];
+   Byte val = bus->memory[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 3;
 }
 
 // indirect with X offset to the pointer(0xA1)
-void opLDA_indX(Cpu *cpu, Mem *mem) {
-   Byte zp_addr = (mem->ROM[cpu->PC + 1] + cpu->X) & 0xFF;
-   Addr addr = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
-   Byte val = mem->ROM[addr];
+void opLDA_indX(Cpu *cpu, Bus *bus) {
+   Byte zp_addr = (bus->memory[cpu->PC + 1] + cpu->X) & 0xFF;
+   Addr addr = bus->memory[zp_addr] | (bus->memory[(zp_addr + 1) & 0xFF] << 8);
+   Byte val = bus->memory[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
 }
 
 // indirect with Y offset to the addressk(0xA1)
-void opLDA_indY(Cpu *cpu, Mem *mem) {
-   Byte zp_addr = mem->ROM[cpu->PC + 1];
-   Addr base = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
+void opLDA_indY(Cpu *cpu, Bus *bus) {
+   Byte zp_addr = bus->memory[cpu->PC + 1];
+   Addr base = bus->memory[zp_addr] | (bus->memory[(zp_addr + 1) & 0xFF] << 8);
    Addr addr = (base + cpu->Y) & 0xFFFF;
-   Byte val = mem->ROM[addr];
+   Byte val = bus->memory[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
@@ -128,8 +128,8 @@ void opLDA_indY(Cpu *cpu, Mem *mem) {
 
 
 // Store value in X, set negative and zero flag
-void opLDX(Cpu *cpu, Mem *mem) {
-  opUnknown(cpu, mem);
+void opLDX(Cpu *cpu, Bus *bus) {
+  opUnknown(cpu, bus);
 }
 
 
@@ -172,35 +172,35 @@ void opTYA(Cpu *cpu) { // Transfer Y to accumulator
 // STACK OPERATIONS
 //*******************************************
 
-void opTSX(Cpu *cpu, Mem *mem) {
-   opUnknown(cpu, mem);
+void opTSX(Cpu *cpu, Bus *bus) {
+   opUnknown(cpu, bus);
 }
 
-void opTXS(Cpu *cpu, Mem *mem) {
-   opUnknown(cpu, mem);
+void opTXS(Cpu *cpu, Bus *bus) {
+   opUnknown(cpu, bus);
 }
 
-void opPHA(Cpu *cpu, Mem *mem) {
-   opUnknown(cpu, mem);
+void opPHA(Cpu *cpu, Bus *bus) {
+   opUnknown(cpu, bus);
 }
 
-void opPHP(Cpu *cpu, Mem *mem) {
-   opUnknown(cpu, mem);
+void opPHP(Cpu *cpu, Bus *bus) {
+   opUnknown(cpu, bus);
 }
 
-void opPLA(Cpu *cpu, Mem *mem) {
-   opUnknown(cpu, mem);
+void opPLA(Cpu *cpu, Bus *bus) {
+   opUnknown(cpu, bus);
 }
 
-void opPLP(Cpu *cpu, Mem *mem) {
-   opUnknown(cpu, mem);
+void opPLP(Cpu *cpu, Bus *bus) {
+   opUnknown(cpu, bus);
 }
 
-Addr readAddr(Cpu *cpu, Mem *mem) {
-   return (Byte)mem->ROM[cpu->PC] | ((Byte)mem->ROM[cpu->PC + 1] << 8);
+Addr readAddr(Cpu *cpu, Bus *bus) {
+   return (Byte)bus->memory[cpu->PC] | ((Byte)bus->memory[cpu->PC + 1] << 8);
 }
 
-void opNOP(Cpu *cpu, Mem *mem) {
+void opNOP(Cpu *cpu, Bus *bus) {
    cpu->PC += 1;
 }
 
@@ -211,7 +211,7 @@ void dumpReg(Cpu *cpu) {
 }
 
 typedef struct {
-   void (*handler)(Cpu *cpu, Mem *mem);
+   void (*handler)(Cpu *cpu, Bus *bus);
    unsigned cycles;
 } Opcodes;
 

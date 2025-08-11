@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../cpu.h"
-#include "../memory.h"
+#include "../bus.h"
 
 
 #ifndef TESTS_CPU_H

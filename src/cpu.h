@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "memory.h"
+#include "bus.h"
 #include "6502_types.h"
 
 #ifndef CPU_H
@@ -27,20 +27,20 @@ typedef struct {
 
 Cpu* initCpu();
 
-void opUnknown(Cpu *cpu, Mem *mem);
+void opUnknown(Cpu *cpu, Bus *mem);
 //*******************************************
 // LOAD/STORE OPERATIONS
 // //*******************************************
-void opLDA_imm(Cpu*, Mem*);
-void opLDA_zp(Cpu*, Mem*);
-void opLDA_zpX(Cpu*, Mem*);
-void opLDA_abs(Cpu*, Mem*);
-void opLDA_absX(Cpu*, Mem*);
-void opLDA_absY(Cpu*, Mem*);
-void opLDA_indX(Cpu*, Mem*);
-void opLDA_indY(Cpu*, Mem*);
+void opLDA_imm(Cpu*, Bus*);
+void opLDA_zp(Cpu*, Bus*);
+void opLDA_zpX(Cpu*, Bus*);
+void opLDA_abs(Cpu*, Bus*);
+void opLDA_absX(Cpu*, Bus*);
+void opLDA_absY(Cpu*, Bus*);
+void opLDA_indX(Cpu*, Bus*);
+void opLDA_indY(Cpu*, Bus*);
 
-void opLDX(Cpu*, Mem*);
+void opLDX(Cpu*, Bus*);
 void opLDY(Cpu*, uint8_t);
 void opSTA(Cpu*, uint8_t);
 void opSTX(Cpu*, uint8_t);
@@ -55,21 +55,21 @@ void opTYA(Cpu *cpu);
 //****************************************
 // STACK OPERATIONS
 //****************************************
-void opTSX(Cpu *cpu, Mem *mem);
-void opTXS(Cpu *cpu, Mem *mem);
-void opPHA(Cpu *cpu, Mem *mem);
-void opPHP(Cpu *cpu, Mem *mem);
-void opPLA(Cpu *cpu, Mem *mem);
-void opPLP(Cpu *cpu, Mem *mem);
+void opTSX(Cpu *cpu, Bus *mem);
+void opTXS(Cpu *cpu, Bus *mem);
+void opPHA(Cpu *cpu, Bus *mem);
+void opPHP(Cpu *cpu, Bus *mem);
+void opPLA(Cpu *cpu, Bus *mem);
+void opPLP(Cpu *cpu, Bus *mem);
 
 
-void opJMPdirect(Cpu *cpu, Mem *mem);
-void opJMPindirect(Cpu *cpu, Mem *mem);
+void opJMPdirect(Cpu *cpu, Bus *mem);
+void opJMPindirect(Cpu *cpu, Bus *mem);
 
 void step(Cpu *cpu);
 
-uint16_t readAddr(Cpu *cpu, Mem *mem);
-void opNOP(Cpu *cpu, Mem *mem);
+uint16_t readAddr(Cpu *cpu, Bus *mem);
+void opNOP(Cpu *cpu, Bus *mem);
 
 
 #endif // CPU_H
