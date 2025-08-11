@@ -3,6 +3,8 @@ SOURCES := $(wildcard $(SRC)/*.c)
 HEADERS := $(wildcard $(SRC)/*.h)
 ARTIFACTS := $(SOURCES:.c=.o)
 EXECUTABLE_NAME := 6502
+CC := gcc
+CFLAGS := -Wall -Wextra
 
 
 all: build run
