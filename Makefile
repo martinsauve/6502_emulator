@@ -19,6 +19,8 @@ run:
 	./$(EXECUTABLE_NAME)
 
 clean:
-	rm -f $(ARTIFACTS) $(EXECUTABLE_NAME)
+	rm $(ARTIFACTS)
+	rm $(EXECUTABLE_NAME)
+	rm dump.bin
 
 clean-build: clean build

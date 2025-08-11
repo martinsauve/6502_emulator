@@ -26,49 +26,127 @@ Cpu* initCpu() {
 
 }
 
+void opUnknown(Cpu *cpu, Mem *mem){
+   printf( "Unrecognized opcode 0x%02x at 0x%04x\n", mem->ROM[cpu->PC], cpu->PC );
+   dumpRom(mem, "dump.bin");
+   printf("Rom dumped!\n");
 
+}
+
+// untility : set Z and N flags after loading value
+static void setZN(Cpu *cpu, uint8_t val) {
+   cpu->Z = (val == 0);
+   cpu->N = ( (val & 0x80) != 0 );
+}
 
 
 //*******************************************
 // LOAD/STORE OPERATIONS
 //*******************************************
 
-// Store value in A, set negative and zero flag
-void opLDA(Cpu *cpu, Mem *mem) {
-  cpu->A = val;
-  if (val==0) cpu->Z = true; else cpu->Z = false;
-  if (val<0)  cpu->N = true; else cpu->N = false;
+//*******************************************
+// LDA
+//*******************************************
+
+// immediate addressing mode (0xA9)
+void opLDA_imm(Cpu *cpu, Mem *mem) {
+   uint8_t val = mem->ROM[cpu->PC + 1];
+   cpu->A = val;
+   setZN(cpu, val);
+   cpu->PC += 2;
 }
 
 
+// zero page (0xA5)
+void opLDA_zp(Cpu *cpu, Mem *mem) {
+   uint8_t addr = mem->ROM[cpu->PC + 1];
+   uint8_t val = mem->ROM[addr];
+   cpu->A = val;
+   setZN(cpu, val);
+   cpu->PC += 2;
+}
+
+// zero page with X offset (0xB5)
+void opLDA_zpX(Cpu *cpu, Mem *mem) {
+   uint8_t addr = (mem->ROM[cpu->PC + 1] + cpu->X) & 0xFF; // wrap around
+   uint8_t val = mem->ROM[addr];
+   cpu->A = val;
+   setZN(cpu, val);
+   cpu->PC += 2;
+}
+
+// absolute addressing mode (0xAD)
+void opLDA_abs(Cpu *cpu, Mem *mem) {
+   uint16_t addr = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
+   uint8_t val = mem->ROM[addr];
+   cpu->A = val;
+   setZN(cpu, val);
+   cpu->PC += 3;
+}
+
+// absolute with X offset (0xBD)
+void opLDA_absX(Cpu *cpu, Mem *mem) {
+   uint16_t base = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
+   uint16_t addr = (base + cpu->X) & 0xFFFF; // wrap around
+   uint8_t val = mem->ROM[addr];
+   cpu->A = val;
+   setZN(cpu, val);
+   cpu->PC += 3;
+}
+
+// absolute with Y offset (0xB9)
+void opLDA_absY(Cpu *cpu, Mem *mem) {
+   uint16_t base = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
+   uint16_t addr = (base + cpu->Y) & 0xFFFF; // wrap around
+   uint8_t val = mem->ROM[addr];
+   cpu->A = val;
+   setZN(cpu, val);
+   cpu->PC += 3;
+}
+
+// indirect with X offset (0xA1)
+void opLDA_indX(Cpu *cpu, Mem *mem) {
+   uint8_t zp_addr = (mem->ROM[cpu->PC + 1] + cpu->X) & 0xFF;
+   uint16_t addr = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
+   uint8_t val = mem->ROM[addr];
+   cpu->A = val;
+   setZN(cpu, val);
+   cpu->PC += 2;
+}
+
+// indirect with Y offset (0xA1)
+void opLDA_indY(Cpu *cpu, Mem *mem) {
+   uint8_t zp_addr = (mem->ROM[cpu->PC + 1] + cpu->Y) & 0xFF;
+   uint16_t addr = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
+   uint8_t val = mem->ROM[addr];
+   cpu->A = val;
+   setZN(cpu, val);
+   cpu->PC += 2;
+}
+
+
+
+
 // Store value in X, set negative and zero flag
-void opLDX(Cpu *cpu, uint8_t val) {
-  cpu->X = val;
-  if (val==0) cpu->Z = true; else cpu->Z = false;
-  if (val<0)  cpu->N = true; else cpu->N = false;
+void opLDX(Cpu *cpu, Mem *mem) {
+  opUnknown(cpu, mem);
 }
 
 
 // Store value in Y, set negative and zero flag
 void opLDY(Cpu *cpu, uint8_t val) {
-  cpu->Y = val;
-  if (val==0) cpu->Z = true; else cpu->Z = false;
-  if (val<0)  cpu->N = true; else cpu->N = false;
 }
 
 // Store value in A, don't touch the flags
 void opSTA(Cpu *cpu, uint8_t val) {
-  cpu->A = val;
 }
 
 // Store value in X, don't touch the flags
 void opSTX(Cpu *cpu, uint8_t val) {
-  cpu->X = val;
 }
 
 // Store value in Y, don't touch the flags
 void opSTY(Cpu *cpu, uint8_t val) {
-  cpu->Y = val;
 }
 
 
@@ -78,27 +156,15 @@ void opSTY(Cpu *cpu, uint8_t val) {
 
 
 void opTAX(Cpu *cpu) { // Transfer accumulator to X
-  cpu->X = cpu->A;
-  if (cpu->A == 0) cpu->Z = true; else cpu->Z = false;
-  if (cpu->A < 0)  cpu->N = true; else cpu->N = false;
 }
 
 
 void opTAY(Cpu *cpu) { // Transfer accumulator to Y
-  cpu->Y = cpu->A;
-  if (cpu->A == 0) cpu->Z = true; else cpu->Z = false;
-  if (cpu->A < 0)  cpu->N = true; else cpu->N = false;
 }
 void opTXA(Cpu *cpu) { // Transfer X to accumulator
-  cpu->A = cpu->X;
-  if (cpu->A == 0) cpu->Z = true; else cpu->Z = false;
-  if (cpu->A < 0)  cpu->N = true; else cpu->N = false;
 }
 
 void opTYA(Cpu *cpu) { // Transfer Y to accumulator
-  cpu->A = cpu->Y;
-  if (cpu->A == 0) cpu->Z = true; else cpu->Z = false;
-  if (cpu->A < 0)  cpu->N = true; else cpu->N = false;
 }
 
 
@@ -107,26 +173,27 @@ void opTYA(Cpu *cpu) { // Transfer Y to accumulator
 //*******************************************
 
 void opTSX(Cpu *cpu, Mem *mem) {
+   opUnknown(cpu, mem);
 }
 
 void opTXS(Cpu *cpu, Mem *mem) {
+   opUnknown(cpu, mem);
 }
 
 void opPHA(Cpu *cpu, Mem *mem) {
+   opUnknown(cpu, mem);
 }
 
 void opPHP(Cpu *cpu, Mem *mem) {
+   opUnknown(cpu, mem);
 }
 
 void opPLA(Cpu *cpu, Mem *mem) {
+   opUnknown(cpu, mem);
 }
 
 void opPLP(Cpu *cpu, Mem *mem) {
-}
-
-
-void step(Cpu *cpu) {
-   cpu->PC++;
+   opUnknown(cpu, mem);
 }
 
 uint16_t readAddr(Cpu *cpu, Mem *mem) {
@@ -134,22 +201,9 @@ uint16_t readAddr(Cpu *cpu, Mem *mem) {
 }
 
 void opNOP(Cpu *cpu, Mem *mem) {
-   step(cpu);
+   cpu->PC += 1;
 }
 
-
-void opJMPdirect(Cpu *cpu, uint16_t val) {
-   cpu->PC = val;
-}
-
-void opJMPindirect(Cpu *cpu, Mem *mem) {
-   cpu->PC = readAddr(cpu, mem);
-}
-
-void opUnknown(Cpu *cpu, Mem *mem){
-   printf("Unrecognized opcode %02x at %04x", cpu->PC, mem->ROM[cpu->PC]);
-   abort();
-}
 
 void dumpReg(Cpu *cpu) {
    printf(" A | X | C | Z | N\n");
@@ -163,5 +217,12 @@ OpFunc opcode_table[256];
 void initOpcodeTable() {
    for (int i = 0; i < 256; i++) opcode_table[i] = opUnknown;
    opcode_table[0xEA] = opNOP;
-   opcode_table[0xA9] = opLDA;
+   opcode_table[0xA9] = opLDA_imm;
+   opcode_table[0xA5] = opLDA_zp;
+   opcode_table[0xB5] = opLDA_zpX;
+   opcode_table[0xAD] = opLDA_abs;
+   opcode_table[0xBD] = opLDA_absX;
+   opcode_table[0xB9] = opLDA_absY;
+   opcode_table[0xA1] = opLDA_indX;
+   opcode_table[0xB1] = opLDA_indY;
 }

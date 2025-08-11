@@ -14,10 +14,13 @@ int main(void) {
    mem->ROM[0xfffc] = 0x00;
    mem->ROM[0xfffd] = 0x01;
 
-   opJMPdirect(cpu, 0xfffc);
+   opJMPdirect(cpu, mem);
    printf("%04x\n", cpu->PC);
    opJMPindirect(cpu, mem);
-   printf("%04x\n", cpu->PC);
+   cpu->PC = 0x01f0;
+   printf("pc %04x\n", cpu->PC);
+   printf("mem %02x\n", mem->ROM[cpu->PC]);
+   opUnknown(cpu, mem);
 
 free:
    free(mem);

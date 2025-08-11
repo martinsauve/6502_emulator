@@ -27,15 +27,16 @@ typedef struct {
 
 Cpu* initCpu();
 
+void opUnknown(Cpu *cpu, Mem *mem);
 //*******************************************
 // LOAD/STORE OPERATIONS
 // //*******************************************
-void opLDA(Cpu *cpu, Mem *mem);
-void opLDX(Cpu *cpu, uint8_t val);
-void opLDY(Cpu *cpu, uint8_t val);
-void opSTA(Cpu *cpu, uint8_t val);
-void opSTX(Cpu *cpu, uint8_t val);
-void opSTY(Cpu *cpu, uint8_t val);
+void opLDA_imm(Cpu*, Mem*);
+void opLDX(Cpu*, Mem*);
+void opLDY(Cpu*, uint8_t);
+void opSTA(Cpu*, uint8_t);
+void opSTX(Cpu*, uint8_t);
+void opSTY(Cpu*, uint8_t);
 //****************************************
 // REGISTER TRANSFERS
 //****************************************
@@ -54,7 +55,7 @@ void opPLA(Cpu *cpu, Mem *mem);
 void opPLP(Cpu *cpu, Mem *mem);
 
 
-void opJMPdirect(Cpu *cpu, uint16_t val);
+void opJMPdirect(Cpu *cpu, Mem *mem);
 void opJMPindirect(Cpu *cpu, Mem *mem);
 
 void step(Cpu *cpu);
