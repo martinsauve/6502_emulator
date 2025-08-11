@@ -32,6 +32,14 @@ void opUnknown(Cpu *cpu, Mem *mem);
 // LOAD/STORE OPERATIONS
 // //*******************************************
 void opLDA_imm(Cpu*, Mem*);
+void opLDA_zp(Cpu*, Mem*);
+void opLDA_zpX(Cpu*, Mem*);
+void opLDA_abs(Cpu*, Mem*);
+void opLDA_absX(Cpu*, Mem*);
+void opLDA_absY(Cpu*, Mem*);
+void opLDA_indX(Cpu*, Mem*);
+void opLDA_indY(Cpu*, Mem*);
+
 void opLDX(Cpu*, Mem*);
 void opLDY(Cpu*, uint8_t);
 void opSTA(Cpu*, uint8_t);

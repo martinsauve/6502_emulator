@@ -104,7 +104,7 @@ void opLDA_absY(Cpu *cpu, Mem *mem) {
    cpu->PC += 3;
 }
 
-// indirect with X offset (0xA1)
+// indirect with X offset to the pointer(0xA1)
 void opLDA_indX(Cpu *cpu, Mem *mem) {
    uint8_t zp_addr = (mem->ROM[cpu->PC + 1] + cpu->X) & 0xFF;
    uint16_t addr = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
@@ -114,16 +114,16 @@ void opLDA_indX(Cpu *cpu, Mem *mem) {
    cpu->PC += 2;
 }
 
-// indirect with Y offset (0xA1)
+// indirect with Y offset to the addressk(0xA1)
 void opLDA_indY(Cpu *cpu, Mem *mem) {
-   uint8_t zp_addr = (mem->ROM[cpu->PC + 1] + cpu->Y) & 0xFF;
-   uint16_t addr = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
+   uint8_t zp_addr = mem->ROM[cpu->PC + 1];
+   uint16_t base = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
+   uint16_t addr = (base + cpu->Y) & 0xFFFF;
    uint8_t val = mem->ROM[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
 }
-
 
 
 
