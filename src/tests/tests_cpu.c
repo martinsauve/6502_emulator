@@ -1,9 +1,8 @@
-#include <stdint.h>
-#include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
-#include "cpu.h"
-#include "memory.h"
+#include "../cpu.h"
+#include "../memory.h"
 
 void print_lda_result(const char* label, Cpu *cpu, uint8_t expectedA) {
     printf("%s: A=0x%02X (expected 0x%02X), Z=%d, N=%d, PC=0x%04X\n",
@@ -93,27 +92,4 @@ void test_lda_ops() {
 
     free(mem);
     free(cpu);
-}
-int main(void) {
-
-   test_lda_ops();
-   //Mem *mem = initMemory();
-   //Cpu *cpu = initCpu();
-
-   //mem->ROM[0xfffc] = 0x00;
-   //mem->ROM[0xfffd] = 0x01;
-
-   //opJMPdirect(cpu, mem);
-   //printf("%04x\n", cpu->PC);
-   //opJMPindirect(cpu, mem);
-   //cpu->PC = 0x01f0;
-   //printf("pc %04x\n", cpu->PC);
-   //printf("mem %02x\n", mem->ROM[cpu->PC]);
-   //opUnknown(cpu, mem);
-
-//free:
-   //free(mem);
-   //mem = NULL;
-   //free(cpu);
-   //cpu = NULL;
 }
