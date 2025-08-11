@@ -1,16 +1,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "memory.h"
+#include "6502_types.h"
 
 #ifndef CPU_H
 #define CPU_H
 
 typedef struct {
-   uint16_t PC; // Program Counter
-   uint8_t  SP; // Stack Pointer
-   uint8_t  A;  // Accumulator
-   uint8_t  X;  // Index Register
-   uint8_t  Y;  // Index Register
+   Addr PC; // Program Counter
+   Byte  SP; // Stack Pointer
+   Byte  A;  // Accumulator
+   Byte  X;  // Index Register
+   Byte  Y;  // Index Register
 
    bool    C;  // Carry Flag
    bool    Z;  // Zero Flag

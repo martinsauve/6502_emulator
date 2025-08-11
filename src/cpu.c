@@ -1,9 +1,8 @@
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
 #include "memory.h"
+#include "6502_types.h"
 
 
 Cpu* initCpu() {
@@ -35,7 +34,7 @@ void opUnknown(Cpu *cpu, Mem *mem){
 }
 
 // untility : set Z and N flags after loading value
-static void setZN(Cpu *cpu, uint8_t val) {
+static void setZN(Cpu *cpu, Byte val) {
    cpu->Z = (val == 0);
    cpu->N = ( (val & 0x80) != 0 );
 }
@@ -51,7 +50,7 @@ static void setZN(Cpu *cpu, uint8_t val) {
 
 // immediate addressing mode (0xA9)
 void opLDA_imm(Cpu *cpu, Mem *mem) {
-   uint8_t val = mem->ROM[cpu->PC + 1];
+   Byte val = mem->ROM[cpu->PC + 1];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
@@ -60,8 +59,8 @@ void opLDA_imm(Cpu *cpu, Mem *mem) {
 
 // zero page (0xA5)
 void opLDA_zp(Cpu *cpu, Mem *mem) {
-   uint8_t addr = mem->ROM[cpu->PC + 1];
-   uint8_t val = mem->ROM[addr];
+   Byte addr = mem->ROM[cpu->PC + 1];
+   Byte val = mem->ROM[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
@@ -69,8 +68,8 @@ void opLDA_zp(Cpu *cpu, Mem *mem) {
 
 // zero page with X offset (0xB5)
 void opLDA_zpX(Cpu *cpu, Mem *mem) {
-   uint8_t addr = (mem->ROM[cpu->PC + 1] + cpu->X) & 0xFF; // wrap around
-   uint8_t val = mem->ROM[addr];
+   Byte addr = (mem->ROM[cpu->PC + 1] + cpu->X) & 0xFF; // wrap around
+   Byte val = mem->ROM[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
@@ -78,8 +77,8 @@ void opLDA_zpX(Cpu *cpu, Mem *mem) {
 
 // absolute addressing mode (0xAD)
 void opLDA_abs(Cpu *cpu, Mem *mem) {
-   uint16_t addr = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
-   uint8_t val = mem->ROM[addr];
+   Addr addr = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
+   Byte val = mem->ROM[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 3;
@@ -87,9 +86,9 @@ void opLDA_abs(Cpu *cpu, Mem *mem) {
 
 // absolute with X offset (0xBD)
 void opLDA_absX(Cpu *cpu, Mem *mem) {
-   uint16_t base = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
-   uint16_t addr = (base + cpu->X) & 0xFFFF; // wrap around
-   uint8_t val = mem->ROM[addr];
+   Addr base = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
+   Addr addr = (base + cpu->X) & 0xFFFF; // wrap around
+   Byte val = mem->ROM[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 3;
@@ -97,9 +96,9 @@ void opLDA_absX(Cpu *cpu, Mem *mem) {
 
 // absolute with Y offset (0xB9)
 void opLDA_absY(Cpu *cpu, Mem *mem) {
-   uint16_t base = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
-   uint16_t addr = (base + cpu->Y) & 0xFFFF; // wrap around
-   uint8_t val = mem->ROM[addr];
+   Addr base = mem->ROM[cpu->PC + 1] | (mem->ROM[cpu->PC + 2] << 8);
+   Addr addr = (base + cpu->Y) & 0xFFFF; // wrap around
+   Byte val = mem->ROM[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 3;
@@ -107,9 +106,9 @@ void opLDA_absY(Cpu *cpu, Mem *mem) {
 
 // indirect with X offset to the pointer(0xA1)
 void opLDA_indX(Cpu *cpu, Mem *mem) {
-   uint8_t zp_addr = (mem->ROM[cpu->PC + 1] + cpu->X) & 0xFF;
-   uint16_t addr = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
-   uint8_t val = mem->ROM[addr];
+   Byte zp_addr = (mem->ROM[cpu->PC + 1] + cpu->X) & 0xFF;
+   Addr addr = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
+   Byte val = mem->ROM[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
@@ -117,10 +116,10 @@ void opLDA_indX(Cpu *cpu, Mem *mem) {
 
 // indirect with Y offset to the addressk(0xA1)
 void opLDA_indY(Cpu *cpu, Mem *mem) {
-   uint8_t zp_addr = mem->ROM[cpu->PC + 1];
-   uint16_t base = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
-   uint16_t addr = (base + cpu->Y) & 0xFFFF;
-   uint8_t val = mem->ROM[addr];
+   Byte zp_addr = mem->ROM[cpu->PC + 1];
+   Addr base = mem->ROM[zp_addr] | (mem->ROM[(zp_addr + 1) & 0xFF] << 8);
+   Addr addr = (base + cpu->Y) & 0xFFFF;
+   Byte val = mem->ROM[addr];
    cpu->A = val;
    setZN(cpu, val);
    cpu->PC += 2;
@@ -135,19 +134,19 @@ void opLDX(Cpu *cpu, Mem *mem) {
 
 
 // Store value in Y, set negative and zero flag
-void opLDY(Cpu *cpu, uint8_t val) {
+void opLDY(Cpu *cpu, Byte val) {
 }
 
 // Store value in A, don't touch the flags
-void opSTA(Cpu *cpu, uint8_t val) {
+void opSTA(Cpu *cpu, Byte val) {
 }
 
 // Store value in X, don't touch the flags
-void opSTX(Cpu *cpu, uint8_t val) {
+void opSTX(Cpu *cpu, Byte val) {
 }
 
 // Store value in Y, don't touch the flags
-void opSTY(Cpu *cpu, uint8_t val) {
+void opSTY(Cpu *cpu, Byte val) {
 }
 
 
@@ -197,8 +196,8 @@ void opPLP(Cpu *cpu, Mem *mem) {
    opUnknown(cpu, mem);
 }
 
-uint16_t readAddr(Cpu *cpu, Mem *mem) {
-   return (uint8_t)mem->ROM[cpu->PC] | ((uint8_t)mem->ROM[cpu->PC + 1] << 8);
+Addr readAddr(Cpu *cpu, Mem *mem) {
+   return (Byte)mem->ROM[cpu->PC] | ((Byte)mem->ROM[cpu->PC + 1] << 8);
 }
 
 void opNOP(Cpu *cpu, Mem *mem) {
@@ -213,7 +212,7 @@ void dumpReg(Cpu *cpu) {
 
 typedef struct {
    void (*handler)(Cpu *cpu, Mem *mem);
-   uint8_t cycles;
+   unsigned cycles;
 } Opcodes;
 
 Opcodes opcode_table[256];

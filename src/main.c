@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cpu.h"
+#include "6502_types.h"
 #include "memory.h"
 #include "tests/tests_cpu.h"
 

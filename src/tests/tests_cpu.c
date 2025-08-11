@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "../cpu.h"
 #include "../memory.h"
+#include "../6502_types.h"
 
 void print_lda_result(const char* label, Cpu *cpu, uint8_t expectedA) {
     printf("%s: A=0x%02X (expected 0x%02X), Z=%d, N=%d, PC=0x%04X\n",
