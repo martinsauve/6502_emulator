@@ -2,6 +2,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+
 typedef union {
    struct {
    uint8_t   ZP[0x0100];      // 0x0000 - 0x00FF

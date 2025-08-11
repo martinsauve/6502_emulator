@@ -5,7 +5,6 @@
 #ifndef CPU_H
 #define CPU_H
 
-
 typedef struct {
    uint16_t PC; // Program Counter
    uint8_t  SP; // Stack Pointer

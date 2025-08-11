@@ -1,28 +1,39 @@
 SRC := ./src
-SOURCES := $(wildcard $(SRC)/*.c)
-HEADERS := $(wildcard $(SRC)/*.h)
-ARTIFACTS := $(SOURCES:.c=.o)
 EXECUTABLE_NAME := 6502
 CC := gcc
 CFLAGS := -Wall -Wextra
 
+SOURCES := $(wildcard $(SRC)/*.c)
+TESTS := $(wildcard $(SRC)/tests/*.c)
+OBJECTS := $(SOURCES:.c=.o)
+OBJECTS_TESTS := $(TESTS:.c=.o)
+DEPENDS := $(patsubst %.c,%.d, $(SOURCES))
+DEPENDS_TESTS := $(patsubst %.c,%.d, $(TESTS))
 
-all: build run
 
-%.o : %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+all: build-tests run
 
-build: $(ARTIFACTS)
+-include $(DEPENDS) $(DEPENDS_TESTS)
+
+%.o : %.c Makefile
+	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
+
+
+build: $(OBJECTS)
 	$(CC) -o $(EXECUTABLE_NAME) $^
 
+build-tests: $(OBJECTS) $(TESTS:.c=.o)
+	$(CC) -o $(EXECUTABLE_NAME) $^
 
 
 run:
 	./$(EXECUTABLE_NAME)
 
 clean:
-	rm $(ARTIFACTS)
-	rm $(EXECUTABLE_NAME)
-	rm dump.bin
+	rm -f $(DEPENDS) $(DEPENDS_TESTS)
+	rm -f $(OBJECTS)
+	rm -f $(OBJECTS_TESTS)
+	rm -f $(EXECUTABLE_NAME)
+	rm -f dump.bin
 
-clean-build: clean build
+clean-build: clean build-tests

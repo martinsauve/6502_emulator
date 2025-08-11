@@ -21,7 +21,7 @@ void test_lda_ops() {
     print_lda_result("LDA #imm", cpu, 0x42);
 
     // LDA Zero Page (0xA5)
-    cpu->PC = 0x0002;
+    //cpu->PC = 0x0002;
     mem->ROM[0x0002] = 0xA5; // opcode
     mem->ROM[0x0003] = 0x10; // addr
     mem->ROM[0x0010] = 0x55; // value at $10
@@ -29,7 +29,7 @@ void test_lda_ops() {
     print_lda_result("LDA zp", cpu, 0x55);
 
     // LDA Zero Page,X (0xB5)
-    cpu->PC = 0x0004;
+    //cpu->PC = 0x0004;
     cpu->X = 0x05;
     mem->ROM[0x0004] = 0xB5; // opcode
     mem->ROM[0x0005] = 0x20; // addr
@@ -38,7 +38,7 @@ void test_lda_ops() {
     print_lda_result("LDA zp,X", cpu, 0x77);
 
     // LDA Absolute (0xAD)
-    cpu->PC = 0x0006;
+    //cpu->PC = 0x0006;
     mem->ROM[0x0006] = 0xAD; // opcode
     mem->ROM[0x0007] = 0x34; // low byte
     mem->ROM[0x0008] = 0x12; // high byte
