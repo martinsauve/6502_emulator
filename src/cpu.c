@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
@@ -210,19 +211,43 @@ void dumpReg(Cpu *cpu) {
    printf(" %i | %i | %i | %i | %i\n", cpu->A,cpu->X, cpu->C, cpu->Z, cpu->N);
 }
 
-typedef void (*OpFunc)(Cpu *cpu, Mem *mem); // function pointers to opXXX to construct a table matching them with opcodes
+typedef struct {
+   void (*handler)(Cpu *cpu, Mem *mem);
+   uint8_t cycles;
+} Opcodes;
 
-OpFunc opcode_table[256];
+Opcodes opcode_table[256];
 
 void initOpcodeTable() {
-   for (int i = 0; i < 256; i++) opcode_table[i] = opUnknown;
-   opcode_table[0xEA] = opNOP;
-   opcode_table[0xA9] = opLDA_imm;
-   opcode_table[0xA5] = opLDA_zp;
-   opcode_table[0xB5] = opLDA_zpX;
-   opcode_table[0xAD] = opLDA_abs;
-   opcode_table[0xBD] = opLDA_absX;
-   opcode_table[0xB9] = opLDA_absY;
-   opcode_table[0xA1] = opLDA_indX;
-   opcode_table[0xB1] = opLDA_indY;
+   for (int i = 0; i < 256; i++) {
+      opcode_table[i].handler = opUnknown;
+      opcode_table[i].cycles = 2;
+   }
+
+   opcode_table[0xEA].handler = opNOP;
+   opcode_table[0xEA].cycles = 2;
+
+   opcode_table[0xA9].handler = opLDA_imm;
+   opcode_table[0xA9].cycles = 2;
+
+   opcode_table[0xA5].handler = opLDA_zp;
+   opcode_table[0xA5].cycles = 3;
+
+   opcode_table[0xB5].handler = opLDA_zpX;
+   opcode_table[0xB5].cycles = 4;
+
+   opcode_table[0xAD].handler = opLDA_abs;
+   opcode_table[0xAD].cycles = 4;
+
+   opcode_table[0xBD].handler = opLDA_absX;
+   opcode_table[0xBD].cycles = 4; // TODO: or 5 if page boundary crossed
+
+   opcode_table[0xB9].handler = opLDA_absY;
+   opcode_table[0xB9].cycles = 4; // TODO: or 5 if page boundary crossed
+
+   opcode_table[0xA1].handler = opLDA_indX;
+   opcode_table[0xA1].cycles = 6;
+
+   opcode_table[0xB1].handler = opLDA_indY;
+   opcode_table[0xB1].cycles = 5; // TODO: or 6 if page boundary crossed
 }
