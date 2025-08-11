@@ -30,7 +30,8 @@ Cpu* initCpu();
 void opUnknown(Cpu *cpu, Bus *mem);
 //*******************************************
 // LOAD/STORE OPERATIONS
-// //*******************************************
+//*******************************************
+//LDA
 void opLDA_imm(Cpu*, Bus*);
 void opLDA_zp(Cpu*, Bus*);
 void opLDA_zpX(Cpu*, Bus*);
@@ -40,36 +41,42 @@ void opLDA_absY(Cpu*, Bus*);
 void opLDA_indX(Cpu*, Bus*);
 void opLDA_indY(Cpu*, Bus*);
 
-void opLDX(Cpu*, Bus*);
-void opLDY(Cpu*, uint8_t);
-void opSTA(Cpu*, uint8_t);
-void opSTX(Cpu*, uint8_t);
-void opSTY(Cpu*, uint8_t);
-//****************************************
-// REGISTER TRANSFERS
-//****************************************
-void opTAX(Cpu *cpu);
-void opTAY(Cpu *cpu);
-void opTXA(Cpu *cpu);
-void opTYA(Cpu *cpu);
-//****************************************
-// STACK OPERATIONS
-//****************************************
-void opTSX(Cpu *cpu, Bus *mem);
-void opTXS(Cpu *cpu, Bus *mem);
-void opPHA(Cpu *cpu, Bus *mem);
-void opPHP(Cpu *cpu, Bus *mem);
-void opPLA(Cpu *cpu, Bus *mem);
-void opPLP(Cpu *cpu, Bus *mem);
+// LDX
+void opLDX_imm(Cpu*, Bus*);
+void opLDX_zp(Cpu*, Bus*);
+void opLDX_zpY(Cpu*, Bus*);
+void opLDX_abs(Cpu*, Bus*);
+void opLDX_absY(Cpu*, Bus*);
 
+// LDY
+void opLDY_imm(Cpu*, Bus*);
+void opLDY_zp(Cpu*, Bus*);
+void opLDY_zpX(Cpu*, Bus*);
+void opLDY_abs(Cpu*, Bus*);
+void opLDY_absX(Cpu*, Bus*);
 
-void opJMPdirect(Cpu *cpu, Bus *mem);
-void opJMPindirect(Cpu *cpu, Bus *mem);
+// STA
+void opSTA_zp(Cpu*, Bus*);
+void opSTA_zpX(Cpu*, Bus*);
+void opSTA_abs(Cpu*, Bus*);
+void opSTA_absX(Cpu*, Bus*);
+void opSTA_absY(Cpu*, Bus*);
+void opSTA_indX(Cpu*, Bus*);
+void opSTA_indY(Cpu*, Bus*);
 
+// STX
+void opSTX_zp(Cpu*, Bus*);
+void opSTX_zpY(Cpu*, Bus*);
+void opSTX_abs(Cpu*, Bus*);
+
+// STY
+void opSTY_zp(Cpu*, Bus*);
+void opSTY_zpX(Cpu*, Bus*);
+void opSTY_abs(Cpu*, Bus*);
 void step(Cpu *cpu);
 
-uint16_t readAddr(Cpu *cpu, Bus *mem);
-void opNOP(Cpu *cpu, Bus *mem);
+uint16_t readAddr(Cpu*, Bus*);
+void opNOP(Cpu*, Bus*);
 
 
 #endif // CPU_H
