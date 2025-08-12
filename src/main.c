@@ -25,15 +25,13 @@ int main(void) {
 #else
    Cpu *cpu = initCpu();
    Bus *bus = initBus();
-   loadRom(bus, "hello.bin", 0xfff0);
-   dumpBus(bus, "dumpH.bin");
-   //loadBus(bus, "in.bin");
-   //Opcodes opcode_table[256];
-   //initOpcodeTable(opcode_table);
-   //cpu->Z = 0;
-   //opBEQ(cpu, bus);
-   //cpu->Z = 1;
-   //opBEQ(cpu, bus);
+   loadRom(bus, "hello.bin", 0x0600);
+   Opcodes opcode_table[256];
+   initOpcodeTable(opcode_table);
+   cpu->PC = 0x0600; // Set the program counter to the start of the loaded ROM
+   for (int i = 0; i < 500; i++){
+      step(cpu, bus, 0.1, opcode_table);
+   }
 
    free(cpu);
    free(bus);
