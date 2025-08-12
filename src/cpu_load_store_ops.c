@@ -195,6 +195,8 @@ void opLDY_absX(Cpu *cpu, Bus *bus) {
    cpu->PC += 3;
 }
 
+// STORE
+
 //*******************************************
 // STA
 // *******************************************
@@ -203,21 +205,21 @@ void opLDY_absX(Cpu *cpu, Bus *bus) {
 // zero page (0x85)
 void opSTA_zp(Cpu *cpu, Bus *bus) {
    Byte addr = bus->memory[cpu->PC + 1];
-   bus->memory[addr] = cpu->A;
+   busWrite(bus, addr, cpu->A);
    cpu->PC += 2;
 }
 
 // zero page,X (0x95)
 void opSTA_zpX(Cpu *cpu, Bus *bus) {
    Byte addr = (bus->memory[cpu->PC + 1] + cpu->X) & 0xFF;
-   bus->memory[addr] = cpu->A;
+   busWrite(bus, addr, cpu->A);
    cpu->PC += 2;
 }
 
 // absolute (0x8D)
 void opSTA_abs(Cpu *cpu, Bus *bus) {
    Addr addr = bus->memory[cpu->PC + 1] | (bus->memory[cpu->PC + 2] << 8);
-   bus->memory[addr] = cpu->A;
+   busWrite(bus, addr, cpu->A);
    cpu->PC += 3;
 }
 
@@ -225,7 +227,7 @@ void opSTA_abs(Cpu *cpu, Bus *bus) {
 void opSTA_absX(Cpu *cpu, Bus *bus) {
    Addr base = bus->memory[cpu->PC + 1] | (bus->memory[cpu->PC + 2] << 8);
    Addr addr = (base + cpu->X) & 0xFFFF;
-   bus->memory[addr] = cpu->A;
+   busWrite(bus, addr, cpu->A);
    cpu->PC += 3;
 }
 
@@ -233,7 +235,7 @@ void opSTA_absX(Cpu *cpu, Bus *bus) {
 void opSTA_absY(Cpu *cpu, Bus *bus) {
    Addr base = bus->memory[cpu->PC + 1] | (bus->memory[cpu->PC + 2] << 8);
    Addr addr = (base + cpu->Y) & 0xFFFF;
-   bus->memory[addr] = cpu->A;
+   busWrite(bus, addr, cpu->A);
    cpu->PC += 3;
 }
 
@@ -241,7 +243,7 @@ void opSTA_absY(Cpu *cpu, Bus *bus) {
 void opSTA_indX(Cpu *cpu, Bus *bus) {
    Byte zp_addr = (bus->memory[cpu->PC + 1] + cpu->X) & 0xFF;
    Addr addr = bus->memory[zp_addr] | (bus->memory[(zp_addr + 1) & 0xFF] << 8);
-   bus->memory[addr] = cpu->A;
+   busWrite(bus, addr, cpu->A);
    cpu->PC += 2;
 }
 
@@ -250,7 +252,7 @@ void opSTA_indY(Cpu *cpu, Bus *bus) {
    Byte zp_addr = bus->memory[cpu->PC + 1];
    Addr base = bus->memory[zp_addr] | (bus->memory[(zp_addr + 1) & 0xFF] << 8);
    Addr addr = (base + cpu->Y) & 0xFFFF;
-   bus->memory[addr] = cpu->A;
+   busWrite(bus, addr, cpu->A);
    cpu->PC += 2;
 }
 
@@ -261,21 +263,21 @@ void opSTA_indY(Cpu *cpu, Bus *bus) {
 // zero page (0x86)
 void opSTX_zp(Cpu *cpu, Bus *bus) {
    Byte addr = bus->memory[cpu->PC + 1];
-   bus->memory[addr] = cpu->X;
+   busWrite(bus, addr, cpu->X);
    cpu->PC += 2;
 }
 
 // zero page,Y (0x96)
 void opSTX_zpY(Cpu *cpu, Bus *bus) {
    Byte addr = (bus->memory[cpu->PC + 1] + cpu->Y) & 0xFF;
-   bus->memory[addr] = cpu->X;
+   busWrite(bus, addr, cpu->X);
    cpu->PC += 2;
 }
 
 // absolute (0x8E)
 void opSTX_abs(Cpu *cpu, Bus *bus) {
    Addr addr = bus->memory[cpu->PC + 1] | (bus->memory[cpu->PC + 2] << 8);
-   bus->memory[addr] = cpu->X;
+   busWrite(bus, addr, cpu->X);
    cpu->PC += 3;
 }
 
@@ -286,20 +288,20 @@ void opSTX_abs(Cpu *cpu, Bus *bus) {
 // zero page (0x84)
 void opSTY_zp(Cpu *cpu, Bus *bus) {
    Byte addr = bus->memory[cpu->PC + 1];
-   bus->memory[addr] = cpu->Y;
+   busWrite(bus, addr, cpu->Y);
    cpu->PC += 2;
 }
 
 // zero page,X (0x94)
 void opSTY_zpX(Cpu *cpu, Bus *bus) {
    Byte addr = (bus->memory[cpu->PC + 1] + cpu->X) & 0xFF;
-   bus->memory[addr] = cpu->Y;
+   busWrite(bus, addr, cpu->Y);
    cpu->PC += 2;
 }
 
 // absolute (0x8C)
 void opSTY_abs(Cpu *cpu, Bus *bus) {
    Addr addr = bus->memory[cpu->PC + 1] | (bus->memory[cpu->PC + 2] << 8);
-   bus->memory[addr] = cpu->Y;
+   busWrite(bus, addr, cpu->Y);
    cpu->PC += 3;
 }

@@ -22,19 +22,23 @@ void runTests() {
 int main(void) {
 #ifdef DEBUG
    runTests();
-#endif
+#else
    Cpu *cpu = initCpu();
    Bus *bus = initBus();
-   loadBus(bus, "in.bin");
-   Opcodes opcode_table[256];
-   initOpcodeTable(opcode_table);
-   cpu->Z = 0;
-   opBEQ(cpu, bus);
-   cpu->Z = 1;
-   opBEQ(cpu, bus);
+   loadRom(bus, "hello.bin", 0xfff0);
+   dumpBus(bus, "dumpH.bin");
+   //loadBus(bus, "in.bin");
+   //Opcodes opcode_table[256];
+   //initOpcodeTable(opcode_table);
+   //cpu->Z = 0;
+   //opBEQ(cpu, bus);
+   //cpu->Z = 1;
+   //opBEQ(cpu, bus);
 
    free(cpu);
    free(bus);
+#endif
 
    return 0;
+
 }
