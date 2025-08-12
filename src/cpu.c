@@ -58,8 +58,25 @@ void opUnknown(Cpu *cpu, Bus *bus){
 
 }
 
-Addr readAddr(Cpu *cpu, Bus *bus) {
-   return (Byte)bus->memory[cpu->PC] | ((Byte)bus->memory[cpu->PC + 1] << 8);
+void opBEQ(Cpu *cpu, Bus *bus) { // branch if Z is set
+   if (!cpu->Z) {
+      cpu->PC+=2;
+      return;
+   }
+   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
+   return;
+}
+
+void opINX(Cpu *cpu, Bus *bus) {
+   (void)bus; // Unused
+   cpu->X = (cpu->X + 1) & 0xff;
+   cpu->Z = (cpu->X == 0);
+   cpu->N = ( (cpu->X & 0x80) != 0 );
+}
+   // TODO: factor out setZN
+
+void opJMP(Cpu *cpu, Bus *bus) { // only absolute for the hello world
+   cpu->PC = readAddr(cpu, bus);
 }
 
 void opNOP(Cpu *cpu, Bus *bus) {
@@ -68,6 +85,10 @@ void opNOP(Cpu *cpu, Bus *bus) {
    cpu->PC += 1;
 }
 
+
+Addr readAddr(Cpu *cpu, Bus *bus) {
+   return (Addr)bus->memory[cpu->PC + 1] | ((Byte)bus->memory[cpu->PC + 2] << 8);
+}
 
 //void dumpReg(Cpu *cpu) {
 //   printf(" ┌────────────────────────────────┐\n");
@@ -156,4 +177,9 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    opcode_table[0x84].handler = opSTY_zp;   opcode_table[0x84].cycles = 3;
    opcode_table[0x94].handler = opSTY_zpX;  opcode_table[0x94].cycles = 4;
    opcode_table[0x8C].handler = opSTY_abs;  opcode_table[0x8C].cycles = 4;
+
+   opcode_table[0xE8].handler = opINX;      opcode_table[0xE8].cycles = 2;
+   opcode_table[0xF0].handler = opBEQ;      opcode_table[0xF0].cycles = 2;
+   //cycle count only valid if opBEQ does not take the branch, otherwise 3
+   opcode_table[0x4C].handler = opJMP;      opcode_table[0x4C].cycles = 3;
 }

@@ -28,18 +28,10 @@ int main(void) {
    loadBus(bus, "in.bin");
    Opcodes opcode_table[256];
    initOpcodeTable(opcode_table);
-   for(int i=1; i<256;i++) {
-      //printf("%lu\n", (uint64_t)opcode_table[i].handler);
-   }
-
-   step(cpu, bus, 0.01, opcode_table);
-   dumpReg(cpu);
-   step(cpu, bus, 0.01, opcode_table);
-   dumpReg(cpu);
-   step(cpu, bus, 0.01, opcode_table);
-   dumpReg(cpu);
-   step(cpu, bus, 0.01, opcode_table);
-   dumpReg(cpu);
+   cpu->Z = 0;
+   opBEQ(cpu, bus);
+   cpu->Z = 1;
+   opBEQ(cpu, bus);
 
    free(cpu);
    free(bus);

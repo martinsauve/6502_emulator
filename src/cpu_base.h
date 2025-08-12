@@ -24,7 +24,7 @@ typedef struct {
 } Cpu;
 
 typedef struct {
-   void (*handler)(Cpu *cpu, Bus *bus);
+   void (*handler)(Cpu*, Bus*);
    uint8_t cycles;
 } Opcodes;
 
@@ -33,7 +33,7 @@ Cpu* initCpu();
 void dumpReg(Cpu *cpu);
 
 void opUnknown(Cpu *cpu, Bus *mem);
-uint16_t readAddr(Cpu*, Bus*);
+Addr readAddr(Cpu*, Bus*);
 void opNOP(Cpu*, Bus*);
 void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table);
 void initOpcodeTable(Opcodes[256]);

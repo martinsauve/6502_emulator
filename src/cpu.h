@@ -7,4 +7,8 @@
 
 #ifndef CPU_H
 #define CPU_H
+
+void opBEQ(Cpu*, Bus*);
+void opINX(Cpu*, Bus*);
+void opJMP(Cpu*, Bus*);
 #endif // CPU_H
