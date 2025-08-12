@@ -31,6 +31,7 @@ int main(void) {
    cpu->PC = 0x0600; // Set the program counter to the start of the loaded ROM
    for (int i = 0; i < 500; i++){
       step(cpu, bus, 0.1, opcode_table);
+      //dumpReg(cpu);
    }
 
    free(cpu);

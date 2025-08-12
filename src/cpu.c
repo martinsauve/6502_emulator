@@ -72,6 +72,7 @@ void opINX(Cpu *cpu, Bus *bus) {
    cpu->X = (cpu->X + 1) & 0xff;
    cpu->Z = (cpu->X == 0);
    cpu->N = ( (cpu->X & 0x80) != 0 );
+   cpu->PC += 1;
 }
    // TODO: factor out setZN
 
@@ -103,10 +104,10 @@ void dumpReg(Cpu *cpu) {
    printf(" ┌─────────────────────────────────────────────────┐\n");
    printf(" │ CPU Registers                                   │\n");
    printf(" ├────┬────┬────┬──────┬───┬───┬───┬───┬───┬───┬───┤\n");
-   printf(" │  A │  X │  Y │  SP  │ C │ Z │ I │ D │ B │ V │ N │\n");
+   printf(" │  A │  X │  Y │  SP  │ C │ Z │ I │ D │ B │ V │ N │ PC\n");
    printf(" ├────┼────┼────┼──────┼───┼───┼───┼───┼───┼───┼───┤\n");
-   printf(" │ %02x │ %02x │ %02x │  %02x  │ %i │ %i │ %i │ %i │ %i │ %i │ %i │\n",
-          cpu->A, cpu->X, cpu->Y, cpu->SP, cpu->C, cpu->Z, cpu->I, cpu->D, cpu->B, cpu->V, cpu->N);
+   printf(" │ %02x │ %02x │ %02x │  %02x  │ %i │ %i │ %i │ %i │ %i │ %i │ %i │ %04x\n",
+          cpu->A, cpu->X, cpu->Y, cpu->SP, cpu->C, cpu->Z, cpu->I, cpu->D, cpu->B, cpu->V, cpu->N, cpu->PC);
    printf(" └────┴────┴────┴──────┴───┴───┴───┴───┴───┴───┴───┘\n");
 }
 
