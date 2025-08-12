@@ -18,6 +18,7 @@ typedef union {
 
 
 int dumpBus(Bus *mem, char *filename);
+int loadBus(Bus *bus, const char *filename);
 
 Bus* initBus(void);
 

@@ -69,11 +69,25 @@ void opNOP(Cpu *cpu, Bus *bus) {
 }
 
 
+//void dumpReg(Cpu *cpu) {
+//   printf(" ┌────────────────────────────────┐\n");
+//   printf(" │ CPU Registers                  │\n");
+//   printf(" ├────┬────┬────┬─────┬───┬───┬───┤\n");
+//   printf(" │  A │  X │  Y │     │ C │ Z │ N │\n");
+//   printf(" ├────┼────┼────┼─────┼───┼───┼───┤\n");
+//   printf(" │ %02x │ %02x │ %02x │     │ %i │ %i │ %i │\n", cpu->A,cpu->X,cpu->Y, cpu->C, cpu->Z, cpu->N);
+//   printf(" └────┴────┴────┴─────┴───┴───┴───┘\n");
+//}
 void dumpReg(Cpu *cpu) {
-   printf(" A | X | C | Z | N\n");
-   printf(" %i | %i | %i | %i | %i\n", cpu->A,cpu->X, cpu->C, cpu->Z, cpu->N);
+   printf(" ┌─────────────────────────────────────────────────┐\n");
+   printf(" │ CPU Registers                                   │\n");
+   printf(" ├────┬────┬────┬──────┬───┬───┬───┬───┬───┬───┬───┤\n");
+   printf(" │  A │  X │  Y │  SP  │ C │ Z │ I │ D │ B │ V │ N │\n");
+   printf(" ├────┼────┼────┼──────┼───┼───┼───┼───┼───┼───┼───┤\n");
+   printf(" │ %02x │ %02x │ %02x │  %02x  │ %i │ %i │ %i │ %i │ %i │ %i │ %i │\n",
+          cpu->A, cpu->X, cpu->Y, cpu->SP, cpu->C, cpu->Z, cpu->I, cpu->D, cpu->B, cpu->V, cpu->N);
+   printf(" └────┴────┴────┴──────┴───┴───┴───┴───┴───┴───┴───┘\n");
 }
-
 
 void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    Byte op = bus->memory[cpu->PC];

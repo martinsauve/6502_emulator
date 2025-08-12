@@ -25,16 +25,12 @@ int main(void) {
 #endif
    Cpu *cpu = initCpu();
    Bus *bus = initBus();
+   loadBus(bus, "in.bin");
    Opcodes opcode_table[256];
    initOpcodeTable(opcode_table);
    for(int i=1; i<256;i++) {
       //printf("%lu\n", (uint64_t)opcode_table[i].handler);
    }
-   bus->memory[0x00] = 0xA9;
-   bus->memory[0x01] = 69;
-   bus->memory[0x02] = 0xEA;
-   bus->memory[0x03] = 0xA9;
-   bus->memory[0x04] = 32;
 
    step(cpu, bus, 0.01, opcode_table);
    dumpReg(cpu);
