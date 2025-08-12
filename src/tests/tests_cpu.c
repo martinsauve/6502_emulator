@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../cpu.h"
+#include "../cpu_load_store_ops.h"
 #include "../bus.h"
 #include "../6502_types.h"
 

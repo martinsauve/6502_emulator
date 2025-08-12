@@ -1,7 +1,7 @@
 SRC := ./src
 EXECUTABLE_NAME := 6502
 CC := gcc
-CFLAGS := -Wall -Wextra
+CFLAGS := -Wall -Wextra -ggdb
 
 SOURCES := $(wildcard $(SRC)/*.c)
 TESTS := $(wildcard $(SRC)/tests/*.c)
