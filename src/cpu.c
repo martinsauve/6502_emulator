@@ -51,6 +51,103 @@ void opBEQ(Cpu *cpu, Bus *bus) { // branch if Z is set
    return;
 }
 
+void opBNE(Cpu *cpu, Bus *bus) { // branch if Z is NOT set
+   if (cpu->Z) {
+      cpu->PC+=2;
+      return;
+   }
+   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
+   return;
+}
+
+void opBCC(Cpu *cpu, Bus *bus) { // branch if C is NOT set
+   if (cpu->C) {
+      cpu->PC+=2;
+      return;
+   }
+   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
+   return;
+}
+
+void opBCS(Cpu *cpu, Bus *bus) { // branch if C is set
+   if (!cpu->C) {
+      cpu->PC+=2;
+      return;
+   }
+   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
+   return;
+}
+
+void opBMI(Cpu *cpu, Bus *bus) { // branch if N is set
+   if (!cpu->N) {
+      cpu->PC+=2;
+      return;
+   }
+   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
+   return;
+}
+
+void opBPL(Cpu *cpu, Bus *bus) { // branch if N is NOT set
+   if (cpu->N) {
+      cpu->PC+=2;
+      return;
+   }
+   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
+   return;
+}
+
+void opBVC(Cpu *cpu, Bus *bus) { // branch if V is clear
+   if (!cpu->V) {
+      cpu->PC+=2;
+      return;
+   }
+   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
+   return;
+}
+
+void opBVS(Cpu *cpu, Bus *bus) { // branch if V is NOT clear
+   if (cpu->V) {
+      cpu->PC+=2;
+      return;
+   }
+   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
+   return;
+}
+
+void opCLC(Cpu *cpu, Bus *bus) { // clear carry flag
+   cpu->C = 0;
+   cpu->PC += 1;
+}
+void opCLD(Cpu *cpu, Bus *bus) { // clear decimal flag
+   cpu->D = 0;
+   cpu->PC += 1;
+}
+
+void opCLI(Cpu *cpu, Bus *bus) { // clear interrupt disable
+   cpu->I = 0;
+   cpu->PC += 1;
+}
+
+void opCLV(Cpu *cpu, Bus *bus) { // clear overflow
+   cpu->V = 0;
+   cpu->PC += 1;
+}
+
+void opSEC(Cpu *cpu, Bus *bus) { // set carry flag
+   cpu->C = 1;
+   cpu->PC += 1;
+}
+
+void opSED(Cpu *cpu, Bus *bus) { // set decimal flag
+   cpu->D = 1;
+   cpu->PC += 1;
+}
+
+void opSEI(Cpu *cpu, Bus *bus) { // set interrupt disable status
+   cpu->I = 1;
+   cpu->PC += 1;
+}
+
 void opINX(Cpu *cpu, Bus *bus) {
    (void)bus; // Unused
    cpu->X = (cpu->X + 1) & 0xff;
@@ -191,8 +288,17 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    opcode_table[0xE8].handler = opINX;      opcode_table[0xE8].cycles = 2;
 
    // BRANCH
-   opcode_table[0xF0].handler = opBEQ;      opcode_table[0xF0].cycles = 2;
+   opcode_table[0xF0].handler = opBEQ;      opcode_table[0xF0].cycles = 2; // Branch if Z == 0
+   opcode_table[0x0D].handler = opBNE;      opcode_table[0x0D].cycles = 2; // Branch if Z == 1
+   opcode_table[0x90].handler = opBCC;      opcode_table[0x90].cycles = 2; // Branch if C == 0
+   opcode_table[0xB0].handler = opBCS;      opcode_table[0xB0].cycles = 2; // Branch if C == 1
+   opcode_table[0x30].handler = opBMI;      opcode_table[0x30].cycles = 2; // Branch if N == 1
+   opcode_table[0x10].handler = opBPL;      opcode_table[0x10].cycles = 2; // Branch if N == 0
+   opcode_table[0x50].handler = opBVC;      opcode_table[0x50].cycles = 2; // Branch if V == 0
+   opcode_table[0x70].handler = opBVS;      opcode_table[0x70].cycles = 2; // Branch if V == 1
    //cycle count only valid if opBEQ does not take the branch, otherwise 3
+   // TODO: fix the cycle counting by returning them from the handler
+   // /!\ this will need to be done at some point i guess
 
    //JMP
    opcode_table[0x4C].handler = opJMP_abs;  opcode_table[0x4C].cycles = 3;
@@ -205,4 +311,13 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    // SUBROUTINE
    opcode_table[0x20].handler = opJSR;      opcode_table[0x20].cycles = 6;
    opcode_table[0x60].handler = opRTS;      opcode_table[0x60].cycles = 6;
+
+   // FLAGS
+   opcode_table[0x18].handler = opCLC;      opcode_table[0x18].cycles = 2;
+   opcode_table[0xD8].handler = opCLD;      opcode_table[0xD8].cycles = 2;
+   opcode_table[0x58].handler = opCLI;      opcode_table[0x58].cycles = 2;
+   opcode_table[0xB8].handler = opCLV;      opcode_table[0xB8].cycles = 2;
+   opcode_table[0x38].handler = opSEC;      opcode_table[0x38].cycles = 2;
+   opcode_table[0xF8].handler = opSED;      opcode_table[0xF8].cycles = 2;
+   opcode_table[0x78].handler = opSEI;      opcode_table[0x78].cycles = 2;
 }

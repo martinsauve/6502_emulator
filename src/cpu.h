@@ -9,11 +9,31 @@
 #define CPU_H
 
 void opBEQ(Cpu*, Bus*);
+void opBNE(Cpu*, Bus*);
+void opBCC(Cpu*, Bus*);
+void opBCS(Cpu*, Bus*);
+void opBMI(Cpu*, Bus*);
+void opBPL(Cpu*, Bus*);
+void opBVC(Cpu*, Bus*);
+void opBVS(Cpu*, Bus*);
+
+void opCLC(Cpu*, Bus*);
+void opCLD(Cpu*, Bus*);
+void opCLI(Cpu*, Bus*);
+void opCLV(Cpu*, Bus*);
+void opSEC(Cpu*, Bus*);
+void opSED(Cpu*, Bus*);
+void opSEI(Cpu*, Bus*);
+
+
 void opINX(Cpu*, Bus*);
+
 void opJMP_abs(Cpu*, Bus*);
 void opJMP_ind(Cpu*, Bus*);
+
 void opPHA(Cpu*, Bus*);
 void opPLA(Cpu*, Bus*);
+
 void opJSR(Cpu*, Bus*);
 void opRTS(Cpu*, Bus*);
 

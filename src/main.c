@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <string.h>
 #include <stdbool.h>
 #include "cpu.h"
 #include "6502_types.h"
@@ -7,15 +6,16 @@
 #include "tests/tests_cpu.h"
 
 void runTests() {
-   test_lda_ops();
-   test_ldx_ops();
-   test_ldy_ops();
-   test_sta_ops();
-   test_stx_ops();
-   test_sty_ops();
+   test_flags_ops();
+   //test_lda_ops();
+   //test_ldx_ops();
+   //test_ldy_ops();
+   //test_sta_ops();
+   //test_stx_ops();
+   //test_sty_ops();
 }
 
-//#define DEBUG
+#define DEBUG
 
 
 

@@ -6,6 +6,58 @@
 #include "../bus.h"
 #include "../6502_types.h"
 
+
+void test_flags_ops() {
+    Cpu *cpu = initCpu();
+    Bus *bus = initBus();
+
+    printf("Testing SEC (Set Carry):\n");
+    cpu->C = 0;
+    opSEC(cpu, bus);
+    dumpReg(cpu);
+    printf("Expected: Carry flag (C) should be 1\n\n");
+
+    printf("Testing CLC (Clear Carry):\n");
+    cpu->C = 1;
+    opCLC(cpu, bus);
+    dumpReg(cpu);
+    printf("Expected: Carry flag (C) should be 0\n\n");
+
+    printf("Testing SED (Set Decimal):\n");
+    cpu->D = 0;
+    opSED(cpu, bus);
+    dumpReg(cpu);
+    printf("Expected: Decimal flag (D) should be 1\n\n");
+
+    printf("Testing CLD (Clear Decimal):\n");
+    cpu->D = 1;
+    opCLD(cpu, bus);
+    dumpReg(cpu);
+    printf("Expected: Decimal flag (D) should be 0\n\n");
+
+    printf("Testing SEI (Set Interrupt Disable):\n");
+    cpu->I = 0;
+    opSEI(cpu, bus);
+    dumpReg(cpu);
+    printf("Expected: Interrupt Disable flag (I) should be 1\n\n");
+
+    printf("Testing CLI (Clear Interrupt Disable):\n");
+    cpu->I = 1;
+    opCLI(cpu, bus);
+    dumpReg(cpu);
+    printf("Expected: Interrupt Disable flag (I) should be 0\n\n");
+
+    printf("Testing CLV (Clear Overflow):\n");
+    cpu->V = 1;
+    opCLV(cpu, bus);
+    dumpReg(cpu);
+    printf("Expected: Overflow flag (V) should be 0\n\n");
+
+    free(cpu);
+    free(bus);
+}
+
+
 void print_lda_result(const char* label, Cpu *cpu, uint8_t expectedA) {
     printf("%s: A=0x%02X (expected 0x%02X), Z=%d, N=%d, PC=0x%04X\n",
            label, cpu->A, expectedA, cpu->Z, cpu->N, cpu->PC);

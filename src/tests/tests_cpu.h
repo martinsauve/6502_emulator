@@ -13,4 +13,5 @@ void test_ldy_ops();
 void test_sta_ops();
 void test_stx_ops();
 void test_sty_ops();
+void test_flags_ops();
 #endif // TESTS_CPU_H
