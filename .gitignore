@@ -2,4 +2,5 @@
 *.d
 6502
 tags
-dump.bin
+*.bin
+.vimrc
