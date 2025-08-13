@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "bus.h"
-#include "6502_types.h"
+#include "../bus.h"
+#include "../6502_types.h"
 
 #ifndef CPU_BASE_H
 #define CPU_BASE_H

@@ -1,6 +1,6 @@
 #include "cpu.h"
-#include "bus.h"
-#include "6502_types.h"
+#include "../bus.h"
+#include "../6502_types.h"
 #include <stdio.h>
 
 //*******************************************

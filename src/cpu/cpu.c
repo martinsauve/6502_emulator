@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "cpu.h"
-#include "bus.h"
-#include "6502_types.h"
+#include "../bus.h"
+#include "../6502_types.h"
 
 
 
@@ -42,127 +42,13 @@ void opNOP(Cpu *cpu, Bus *bus) {
    cpu->PC += 1;
 }
 
-void opBEQ(Cpu *cpu, Bus *bus) { // branch if Z is set
-   if (!cpu->Z) {
-      cpu->PC+=2;
-      return;
-   }
-   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
-   return;
-}
-
-void opBNE(Cpu *cpu, Bus *bus) { // branch if Z is NOT set
-   if (cpu->Z) {
-      cpu->PC+=2;
-      return;
-   }
-   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
-   return;
-}
-
-void opBCC(Cpu *cpu, Bus *bus) { // branch if C is NOT set
-   if (cpu->C) {
-      cpu->PC+=2;
-      return;
-   }
-   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
-   return;
-}
-
-void opBCS(Cpu *cpu, Bus *bus) { // branch if C is set
-   if (!cpu->C) {
-      cpu->PC+=2;
-      return;
-   }
-   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
-   return;
-}
-
-void opBMI(Cpu *cpu, Bus *bus) { // branch if N is set
-   if (!cpu->N) {
-      cpu->PC+=2;
-      return;
-   }
-   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
-   return;
-}
-
-void opBPL(Cpu *cpu, Bus *bus) { // branch if N is NOT set
-   if (cpu->N) {
-      cpu->PC+=2;
-      return;
-   }
-   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
-   return;
-}
-
-void opBVC(Cpu *cpu, Bus *bus) { // branch if V is clear
-   if (!cpu->V) {
-      cpu->PC+=2;
-      return;
-   }
-   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
-   return;
-}
-
-void opBVS(Cpu *cpu, Bus *bus) { // branch if V is NOT clear
-   if (cpu->V) {
-      cpu->PC+=2;
-      return;
-   }
-   cpu->PC = cpu->PC + 2 + (int8_t)bus->memory[cpu->PC+1]; //cast to signed int for negative offsets
-   return;
-}
-
-void opCLC(Cpu *cpu, Bus *bus) { // clear carry flag
-   (void)bus; // Unused parameter
-   cpu->C = 0;
-   cpu->PC += 1;
-}
-void opCLD(Cpu *cpu, Bus *bus) { // clear decimal flag
-   (void)bus; // Unused parameter
-   cpu->D = 0;
-   cpu->PC += 1;
-}
-
-void opCLI(Cpu *cpu, Bus *bus) { // clear interrupt disable
-   (void)bus; // Unused parameter
-   cpu->I = 0;
-   cpu->PC += 1;
-}
-
-void opCLV(Cpu *cpu, Bus *bus) { // clear overflow
-   (void)bus; // Unused parameter
-   cpu->V = 0;
-   cpu->PC += 1;
-}
-
-void opSEC(Cpu *cpu, Bus *bus) { // set carry flag
-   (void)bus; // Unused parameter
-   cpu->C = 1;
-   cpu->PC += 1;
-}
-
-void opSED(Cpu *cpu, Bus *bus) { // set decimal flag
-   (void)bus; // Unused parameter
-   cpu->D = 1;
-   cpu->PC += 1;
-}
-
-void opSEI(Cpu *cpu, Bus *bus) { // set interrupt disable status
-   (void)bus; // Unused parameter
-   cpu->I = 1;
-   cpu->PC += 1;
-}
 
 void opINX(Cpu *cpu, Bus *bus) {
    (void)bus; // Unused
    cpu->X = (cpu->X + 1) & 0xff;
-   cpu->Z = (cpu->X == 0);
-   cpu->N = ( (cpu->X & 0x80) != 0 );
+   setZN(cpu, cpu->X);
    cpu->PC += 1;
 }
-   // TODO: factor out setZN
 
 void opJMP_abs(Cpu *cpu, Bus *bus) { // only absolute for the hello world
    cpu->PC = readAddr(cpu, bus);
@@ -203,15 +89,6 @@ void opPLA(Cpu *cpu, Bus *bus) {
 }
 
 
-//void dumpReg(Cpu *cpu) {
-//   printf(" ┌────────────────────────────────┐\n");
-//   printf(" │ CPU Registers                  │\n");
-//   printf(" ├────┬────┬────┬─────┬───┬───┬───┤\n");
-//   printf(" │  A │  X │  Y │     │ C │ Z │ N │\n");
-//   printf(" ├────┼────┼────┼─────┼───┼───┼───┤\n");
-//   printf(" │ %02x │ %02x │ %02x │     │ %i │ %i │ %i │\n", cpu->A,cpu->X,cpu->Y, cpu->C, cpu->Z, cpu->N);
-//   printf(" └────┴────┴────┴─────┴───┴───┴───┘\n");
-//}
 void dumpReg(Cpu *cpu) {
    printf(" ┌─────────────────────────────────────────────────┐\n");
    printf(" │ CPU Registers                                   │\n");

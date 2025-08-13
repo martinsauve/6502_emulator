@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include "6502_types.h"
+
 #ifndef BUS_H
 #define BUS_H
-
 
 typedef union {
    struct {

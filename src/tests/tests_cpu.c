@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../cpu.h"
-#include "../cpu_load_store_ops.h"
+#include "../cpu/cpu.h"
 #include "../bus.h"
 #include "../6502_types.h"
 

@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "cpu.h"
+#include "cpu/cpu.h"
 #include "6502_types.h"
 #include "bus.h"
 #include "tests/tests_cpu.h"
