@@ -88,11 +88,25 @@ void opPLA(Cpu *cpu, Bus *bus) {
    cpu->PC += 1;
 }
 
+void opADC_imm(Cpu *cpu, Bus *bus){
+   Byte value = bus->memory[cpu->PC + 1];
+   uint16_t sum = cpu->A + value + cpu->C;
+   //set carry flag
+   cpu->C = (sum > 0xFF);
+   //set overflow flag
+   setV(cpu, cpu->A, value, sum & 0xFF);
 
-void dumpReg(Cpu *cpu) {
-   printf(" ┌─────────────────────────────────────────────────┐\n");
-   printf(" │ CPU Registers                                   │\n");
-   printf(" ├────┬────┬────┬──────┬───┬───┬───┬───┬───┬───┬───┤\n");
+   cpu->A = sum & 0xFF;
+
+   setZN(cpu, cpu->A);
+   cpu->PC += 2;
+}
+
+
+void dumpCpu(Cpu *cpu) {
+   printf(" ┌──────────────┬──────┬───────────────────────────┐\n");
+   printf(" │ CPU Registers│      │        CPU FLAGS          │\n");
+   printf(" ├────┬────┬────┼──────┼───┬───┬───┬───┬───┬───┬───┤\n");
    printf(" │  A │  X │  Y │  SP  │ C │ Z │ I │ D │ B │ V │ N │ PC\n");
    printf(" ├────┼────┼────┼──────┼───┼───┼───┼───┼───┼───┼───┤\n");
    printf(" │ %02x │ %02x │ %02x │  %02x  │ %i │ %i │ %i │ %i │ %i │ %i │ %i │ %04x\n",
@@ -121,16 +135,16 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    // *******************************************
 
    // LDA
-   opcode_table[0xA9].handler = opLDA_imm;   opcode_table[0xA9].cycles = 2;
-   opcode_table[0xA5].handler = opLDA_zp;    opcode_table[0xA5].cycles = 3;
-   opcode_table[0xB5].handler = opLDA_zpX;   opcode_table[0xB5].cycles = 4;
-   opcode_table[0xAD].handler = opLDA_abs;   opcode_table[0xAD].cycles = 4;
-   opcode_table[0xBD].handler = opLDA_absX;  opcode_table[0xBD].cycles = 4;
+   opcode_table[0xA9].handler = opLDA_imm;  opcode_table[0xA9].cycles = 2;
+   opcode_table[0xA5].handler = opLDA_zp;   opcode_table[0xA5].cycles = 3;
+   opcode_table[0xB5].handler = opLDA_zpX;  opcode_table[0xB5].cycles = 4;
+   opcode_table[0xAD].handler = opLDA_abs;  opcode_table[0xAD].cycles = 4;
+   opcode_table[0xBD].handler = opLDA_absX; opcode_table[0xBD].cycles = 4;
    // TODO: or 5 if page boundary crossed
-   opcode_table[0xB9].handler = opLDA_absY;  opcode_table[0xB9].cycles = 4;
+   opcode_table[0xB9].handler = opLDA_absY; opcode_table[0xB9].cycles = 4;
    // TODO: or 5 if page boundary crossed
-   opcode_table[0xA1].handler = opLDA_indX;  opcode_table[0xA1].cycles = 6;
-   opcode_table[0xB1].handler = opLDA_indY;  opcode_table[0xB1].cycles = 5;
+   opcode_table[0xA1].handler = opLDA_indX; opcode_table[0xA1].cycles = 6;
+   opcode_table[0xB1].handler = opLDA_indY; opcode_table[0xB1].cycles = 5;
    // TODO: or 6 if page boundary crossed }
 
    // LDX
@@ -172,14 +186,14 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    opcode_table[0xE8].handler = opINX;      opcode_table[0xE8].cycles = 2;
 
    // BRANCH
-   opcode_table[0xF0].handler = opBEQ;      opcode_table[0xF0].cycles = 2; // Branch if Z == 0
-   opcode_table[0x0D].handler = opBNE;      opcode_table[0x0D].cycles = 2; // Branch if Z == 1
-   opcode_table[0x90].handler = opBCC;      opcode_table[0x90].cycles = 2; // Branch if C == 0
-   opcode_table[0xB0].handler = opBCS;      opcode_table[0xB0].cycles = 2; // Branch if C == 1
-   opcode_table[0x30].handler = opBMI;      opcode_table[0x30].cycles = 2; // Branch if N == 1
-   opcode_table[0x10].handler = opBPL;      opcode_table[0x10].cycles = 2; // Branch if N == 0
-   opcode_table[0x50].handler = opBVC;      opcode_table[0x50].cycles = 2; // Branch if V == 0
-   opcode_table[0x70].handler = opBVS;      opcode_table[0x70].cycles = 2; // Branch if V == 1
+   opcode_table[0xF0].handler = opBEQ;      opcode_table[0xF0].cycles = 2;
+   opcode_table[0x0D].handler = opBNE;      opcode_table[0x0D].cycles = 2;
+   opcode_table[0x90].handler = opBCC;      opcode_table[0x90].cycles = 2;
+   opcode_table[0xB0].handler = opBCS;      opcode_table[0xB0].cycles = 2;
+   opcode_table[0x30].handler = opBMI;      opcode_table[0x30].cycles = 2;
+   opcode_table[0x10].handler = opBPL;      opcode_table[0x10].cycles = 2;
+   opcode_table[0x50].handler = opBVC;      opcode_table[0x50].cycles = 2;
+   opcode_table[0x70].handler = opBVS;      opcode_table[0x70].cycles = 2;
    //cycle count only valid if opBEQ does not take the branch, otherwise 3
    // TODO: fix the cycle counting by returning them from the handler
    // /!\ this will need to be done at some point i guess

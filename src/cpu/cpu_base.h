@@ -30,7 +30,7 @@ typedef struct {
 
 
 Cpu* initCpu();
-void dumpReg(Cpu *cpu);
+void dumpCpu(Cpu *cpu);
 
 void sleep_ms(int milliseconds);
 
@@ -42,6 +42,7 @@ void initOpcodeTable(Opcodes[256]);
 
 Addr readAddr(Cpu*, Bus*);
 void setZN(Cpu *cpu, Byte val);
+void setV(Cpu *cpu, Byte a, Byte b, uint16_t result);
 
 void pushStack(Cpu*, Bus*, Byte value);
 Byte pullStack(Cpu*, Bus*);

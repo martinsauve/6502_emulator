@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
    char *rom_path;
 
    if (argc == 1) { // no args
-      rom_path = "rom.bin";
+      rom_path = "roms/stack.bin";
    } else {
       rom_path = argv[1];
    }
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
    cpu->PC = 0x0600; // Set the program counter to the start of the loaded ROM
    for (int i = 0; i < 500; i++){
       step(cpu, bus, 1, opcode_table);
-      //dumpReg(cpu);
+      dumpCpu(cpu);
    }
 
    free(cpu);

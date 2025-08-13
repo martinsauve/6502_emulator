@@ -1,5 +1,6 @@
 #include "../bus.h"
 #include "cpu.h"
+#include <stdint.h>
 
 // SLEEP
 #ifdef WIN32
@@ -33,6 +34,18 @@ void sleep_ms(int milliseconds){ // cross-platform sleep function
 void setZN(Cpu *cpu, Byte val) {
    cpu->Z = (val == 0);
    cpu->N = ( (val & 0x80) != 0 );
+}
+
+void setV(Cpu *cpu, Byte a, Byte b, uint16_t result) {
+   // Set Overflow flag
+   // Overflow occurs if the sign of A and B are the same, but the sign of result differs
+
+   //       NOT XOR      AND   XOR  AND
+   //        |   |         |    |    |
+   cpu->V = (~(a ^ b) & (a ^ result) & 0x80) != 0;
+   // Effectively, this checks if the sign bits of A and B are the same, but differ from the sign bit of the result.
+   // example: A = +128, B = +200, result = -56
+   // yes, dont ask me why this is so complicated, it just is.
 }
 
 Addr readAddr(Cpu *cpu, Bus *bus) {
