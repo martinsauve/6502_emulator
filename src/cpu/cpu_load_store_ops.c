@@ -1,7 +1,6 @@
 #include "cpu.h"
 #include "../bus.h"
 #include "../6502_types.h"
-#include <stdio.h>
 
 //*******************************************
 // LOAD/STORE OPERATIONS
@@ -15,7 +14,6 @@
 
 // immediate addressing mode (0xA9)
 void opLDA_imm(Cpu *cpu, Bus *bus) {
-   printf("reached lda_imm\n");
    Byte val = bus->memory[cpu->PC + 1];
    cpu->A = val;
    setZN(cpu, val);
