@@ -22,7 +22,6 @@ void runTests() {
 int main(int argc, char *argv[]) {
 
    char *rom_path;
-
    if (argc == 1) { // no args
       rom_path = "roms/stack.bin";
    } else {
