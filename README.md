@@ -21,7 +21,7 @@ No, seriously, you can at the moment provide a bin file as an argument with `org
 
 Without those resources, this project would not have been possible. They are listed here for reference, to help anyone who would like to learn more about the 6502, and as an acknowledgement to the work of their authors.
 
-- opcodes reference (6502.org)](http://6502.org/users/obelisk/6502/reference.html)
+- [opcodes reference (6502.org)](http://6502.org/users/obelisk/6502/reference.html)
 - [automatic makefile dependencies generation for all files of the project](https://stackoverflow.com/a/52036564)
 - [overflow flag maths explaination](https://www.righto.com/2012/12/the-6502-overflow-flag-explained.html)
 - [assembly introduction and compiler setup](https://www.youtube.com/watch?v=oO8_2JJV0B4&t=172s)
