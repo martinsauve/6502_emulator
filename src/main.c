@@ -15,17 +15,27 @@ void runTests() {
    //test_sty_ops();
 }
 
-#define DEBUG
+//#define DEBUG
 
 
 
-int main(void) {
+int main(int argc, char *argv[]) {
+
+   char *rom_path;
+
+   if (argc == 1) { // no args
+      rom_path = "rom.bin";
+   } else {
+      rom_path = argv[1];
+   }
+
+   // If DEBUG is defined, run tests; otherwise, run the CPU simulation
 #ifdef DEBUG
    runTests();
 #else
    Cpu *cpu = initCpu();
    Bus *bus = initBus();
-   loadRom(bus, "jump.bin", 0x0600);
+   loadRom(bus, rom_path, 0x0600);
    Opcodes opcode_table[256];
    initOpcodeTable(opcode_table);
    cpu->PC = 0x0600; // Set the program counter to the start of the loaded ROM
