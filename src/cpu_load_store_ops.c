@@ -11,11 +11,6 @@
 // LDA
 //*******************************************
 
-// untility : set Z and N flags after loading value
-void setZN(Cpu *cpu, Byte val) {
-   cpu->Z = (val == 0);
-   cpu->N = ( (val & 0x80) != 0 );
-}
 
 
 // immediate addressing mode (0xA9)

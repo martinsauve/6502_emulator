@@ -7,28 +7,6 @@
 #include "6502_types.h"
 
 
-#ifdef WIN32
-#include <windows.h>
-#elif _POSIX_C_SOURCE >= 199309L
-#include <time.h>   // for nanosleep
-#else
-#include <unistd.h> // for usleep
-#endif
-
-void sleep_ms(int milliseconds){ // cross-platform sleep function
-#ifdef WIN32
-    Sleep(milliseconds);
-#elif _POSIX_C_SOURCE >= 199309L
-    struct timespec ts;
-    ts.tv_sec = milliseconds / 1000;
-    ts.tv_nsec = (milliseconds % 1000) * 1000000;
-    nanosleep(&ts, NULL);
-#else
-    if (milliseconds >= 1000)
-      sleep(milliseconds / 1000);
-    usleep((milliseconds % 1000) * 1000);
-#endif
-}
 
 
 Cpu* initCpu() {
@@ -55,7 +33,13 @@ Cpu* initCpu() {
 void opUnknown(Cpu *cpu, Bus *bus){
    printf( "Unrecognized opcode 0x%02x at 0x%04x\n", bus->memory[cpu->PC], cpu->PC );
    dumpBus(bus, "dump.bin");
+   exit(0);
 
+}
+
+void opNOP(Cpu *cpu, Bus *bus) {
+   (void)bus; // Unused parameter
+   cpu->PC += 1;
 }
 
 void opBEQ(Cpu *cpu, Bus *bus) { // branch if Z is set
@@ -76,20 +60,18 @@ void opINX(Cpu *cpu, Bus *bus) {
 }
    // TODO: factor out setZN
 
-void opJMP(Cpu *cpu, Bus *bus) { // only absolute for the hello world
+void opJMP_abs(Cpu *cpu, Bus *bus) { // only absolute for the hello world
    cpu->PC = readAddr(cpu, bus);
 }
 
-void opNOP(Cpu *cpu, Bus *bus) {
-   printf("NOP at 0x%04x\n", cpu->PC);
-   (void)bus; // Unused parameter
-   cpu->PC += 1;
+void opJMP_ind(Cpu *cpu, Bus *bus) {
+    Addr ptr = readAddr(cpu, bus);
+    Byte lo = bus->memory[ptr];
+    // Emulate 6502 bug: if low byte is $FF, high byte wraps around
+    Byte hi = bus->memory[(ptr & 0xFF00) | ((ptr + 1) & 0x00FF)];
+    cpu->PC = (Addr)lo | ((Addr)hi << 8);
 }
 
-
-Addr readAddr(Cpu *cpu, Bus *bus) {
-   return (Addr)bus->memory[cpu->PC + 1] | ((Byte)bus->memory[cpu->PC + 2] << 8);
-}
 
 //void dumpReg(Cpu *cpu) {
 //   printf(" ┌────────────────────────────────┐\n");
@@ -182,5 +164,6 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    opcode_table[0xE8].handler = opINX;      opcode_table[0xE8].cycles = 2;
    opcode_table[0xF0].handler = opBEQ;      opcode_table[0xF0].cycles = 2;
    //cycle count only valid if opBEQ does not take the branch, otherwise 3
-   opcode_table[0x4C].handler = opJMP;      opcode_table[0x4C].cycles = 3;
+   opcode_table[0x4C].handler = opJMP_abs;  opcode_table[0x4C].cycles = 3;
+   opcode_table[0x6C].handler = opJMP_ind;  opcode_table[0x6C].cycles = 5;
 }

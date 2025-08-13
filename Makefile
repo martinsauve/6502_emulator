@@ -20,10 +20,10 @@ all: build-tests run
 
 
 build: $(OBJECTS)
-	$(CC) -o $(EXECUTABLE_NAME) $^
+	$(CC) $(CFLAGS) -o $(EXECUTABLE_NAME) $^
 
 build-tests: $(OBJECTS) $(TESTS:.c=.o)
-	$(CC) -o $(EXECUTABLE_NAME) $^
+	$(CC) $(CFLAGS) -o $(EXECUTABLE_NAME) $^
 
 
 run:

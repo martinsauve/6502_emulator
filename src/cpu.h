@@ -10,5 +10,7 @@
 
 void opBEQ(Cpu*, Bus*);
 void opINX(Cpu*, Bus*);
-void opJMP(Cpu*, Bus*);
+void opJMP_abs(Cpu*, Bus*);
+void opJMP_ind(Cpu*, Bus*);
+
 #endif // CPU_H

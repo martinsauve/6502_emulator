@@ -32,11 +32,15 @@ typedef struct {
 Cpu* initCpu();
 void dumpReg(Cpu *cpu);
 
-void opUnknown(Cpu *cpu, Bus *mem);
-Addr readAddr(Cpu*, Bus*);
+void sleep_ms(int milliseconds);
+
+
+void opUnknown(Cpu*, Bus*);
 void opNOP(Cpu*, Bus*);
 void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table);
 void initOpcodeTable(Opcodes[256]);
 
+Addr readAddr(Cpu*, Bus*);
+void setZN(Cpu *cpu, Byte val);
 
 #endif // CPU_BASE_H

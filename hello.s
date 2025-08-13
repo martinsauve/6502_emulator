@@ -1,4 +1,4 @@
-   .org $0600
+      .org $0600
       LDX #0
    LOOP:
       LDA MESSAGE,X
@@ -7,7 +7,7 @@
       INX
       JMP LOOP
    DONE:
-      BRK ; not implemented, should crash
+      NOP
+      BRK
    MESSAGE:
-      .text "Hello, World!"
-      .byte 0
+      .text "Hello, World!\n"
