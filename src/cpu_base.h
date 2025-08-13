@@ -43,4 +43,7 @@ void initOpcodeTable(Opcodes[256]);
 Addr readAddr(Cpu*, Bus*);
 void setZN(Cpu *cpu, Byte val);
 
+void pushStack(Cpu*, Bus*, Byte value);
+Byte pullStack(Cpu*, Bus*);
+
 #endif // CPU_BASE_H

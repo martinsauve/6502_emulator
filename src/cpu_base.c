@@ -1,6 +1,7 @@
 #include "bus.h"
 #include "cpu.h"
 
+// SLEEP
 #ifdef WIN32
 #include <windows.h>
 #elif _POSIX_C_SOURCE >= 199309L
@@ -24,7 +25,11 @@ void sleep_ms(int milliseconds){ // cross-platform sleep function
 #endif
 }
 
-// untility : set Z and N flags after loading value
+
+
+//-----------------------------
+// HELPERS
+//-----------------------------
 void setZN(Cpu *cpu, Byte val) {
    cpu->Z = (val == 0);
    cpu->N = ( (val & 0x80) != 0 );
@@ -32,4 +37,14 @@ void setZN(Cpu *cpu, Byte val) {
 
 Addr readAddr(Cpu *cpu, Bus *bus) {
    return (Addr)bus->memory[cpu->PC + 1] | ((Byte)bus->memory[cpu->PC + 2] << 8);
+}
+
+void pushStack(Cpu *cpu, Bus *bus, Byte value) {
+   bus->map.STACK[cpu->SP] = value;
+   cpu->SP = (cpu->SP - 1) & 0xFF; // wrap around
+}
+
+Byte pullStack(Cpu *cpu, Bus *bus) {
+   cpu->SP = (cpu->SP + 1) & 0xFF;
+   return bus->map.STACK[cpu->SP];
 }

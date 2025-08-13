@@ -14,7 +14,7 @@ Cpu* initCpu() {
    cpu = malloc(sizeof *cpu);
 
    cpu->PC = 0;
-   cpu->SP = 0;
+   cpu->SP = 0xFF;
    cpu->A  = 0;
    cpu->X  = 0;
    cpu->Y  = 0;
@@ -70,6 +70,32 @@ void opJMP_ind(Cpu *cpu, Bus *bus) {
     // Emulate 6502 bug: if low byte is $FF, high byte wraps around
     Byte hi = bus->memory[(ptr & 0xFF00) | ((ptr + 1) & 0x00FF)];
     cpu->PC = (Addr)lo | ((Addr)hi << 8);
+}
+
+void opJSR(Cpu *cpu, Bus *bus) {
+   Addr target = bus->memory[cpu->PC +1] | (bus->memory[cpu->PC + 2] << 8);
+   Addr ret = cpu->PC + 2;
+   pushStack(cpu, bus, (ret >> 8) & 0xFF); //high byte
+   pushStack(cpu, bus, ret & 0xFF); //high byte
+   cpu->PC = target;
+}
+
+void opRTS(Cpu *cpu, Bus *bus) {
+   Byte lo = pullStack(cpu, bus);
+   Byte hi = pullStack(cpu, bus);
+   Addr ret = ((Addr)hi<<8 | lo);
+   cpu->PC = ret + 1;
+}
+
+void opPHA(Cpu *cpu, Bus *bus) {
+   pushStack(cpu, bus, cpu->A);
+   cpu->PC += 1;
+}
+
+void opPLA(Cpu *cpu, Bus *bus) {
+   cpu->A = pullStack(cpu, bus);
+   setZN(cpu, cpu->A);
+   cpu->PC += 1;
 }
 
 
@@ -161,9 +187,22 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    opcode_table[0x94].handler = opSTY_zpX;  opcode_table[0x94].cycles = 4;
    opcode_table[0x8C].handler = opSTY_abs;  opcode_table[0x8C].cycles = 4;
 
+   // INCREMENT X
    opcode_table[0xE8].handler = opINX;      opcode_table[0xE8].cycles = 2;
+
+   // BRANCH
    opcode_table[0xF0].handler = opBEQ;      opcode_table[0xF0].cycles = 2;
    //cycle count only valid if opBEQ does not take the branch, otherwise 3
+
+   //JMP
    opcode_table[0x4C].handler = opJMP_abs;  opcode_table[0x4C].cycles = 3;
    opcode_table[0x6C].handler = opJMP_ind;  opcode_table[0x6C].cycles = 5;
+
+   // STACK
+   opcode_table[0x48].handler = opPHA;      opcode_table[0x48].cycles = 3;
+   opcode_table[0x68].handler = opPLA;      opcode_table[0x68].cycles = 3;
+
+   // SUBROUTINE
+   opcode_table[0x20].handler = opJSR;      opcode_table[0x20].cycles = 6;
+   opcode_table[0x60].handler = opRTS;      opcode_table[0x60].cycles = 6;
 }

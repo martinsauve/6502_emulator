@@ -12,7 +12,7 @@ typedef union {
    Byte   NMI[0x2];        // 0xFFFA - 0xFFFB
    Byte   RESET[0x2];      // 0xFFFC - 0xFFFD
    Byte   IRQBRK[0x2];     // 0xFFFE - 0xFFFF
-   } MAP;
+   } map;
    Byte   memory[0x10000];    // 0x0000 - 0xFFFF
 } Bus;
 
