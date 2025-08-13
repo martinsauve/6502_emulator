@@ -1,7 +1,12 @@
 SRC := ./src
+ROMS := ./roms
 EXECUTABLE_NAME := 6502
+
 CC := gcc
-CFLAGS := -Wall -Wextra -ggdb
+CFLAGS := -Wall -Wextra -ggdb -O3
+
+VASM := vasm6502_oldstyle
+VASMFLAGS := -Fbin -dotdir -esc
 
 SOURCES := $(wildcard $(SRC)/*.c)
 TESTS := $(wildcard $(SRC)/tests/*.c)
@@ -10,8 +15,17 @@ OBJECTS_TESTS := $(TESTS:.c=.o)
 DEPENDS := $(patsubst %.c,%.d, $(SOURCES))
 DEPENDS_TESTS := $(patsubst %.c,%.d, $(TESTS))
 
+ROMS_SOURCES := $(wildcard $(ROMS)/*.s)
+ROMS_BIN := $(ROMS_SOURCES:.s=.bin)
 
-all: build-tests run
+
+all: build-tests roms run
+
+
+%.bin : %.s Makefile
+	$(VASM) $(VASMFLAGS) $< -o $@
+
+roms: $(ROMS_BIN)
 
 -include $(DEPENDS) $(DEPENDS_TESTS)
 
@@ -36,4 +50,8 @@ clean:
 	rm -f $(EXECUTABLE_NAME)
 	rm -f dump.bin
 
-clean-build: clean build-tests
+clean-roms:
+
+	rm -f $(ROMS_BIN)
+
+clean-build: clean clean-roms build-tests roms
