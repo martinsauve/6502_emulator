@@ -9,7 +9,7 @@
 
 
 
-Cpu* initCpu() {
+Cpu* initCpu(CpuType type) {
    Cpu *cpu = NULL;
    cpu = malloc(sizeof *cpu);
 
@@ -26,12 +26,15 @@ Cpu* initCpu() {
    cpu->B  = false;
    cpu->V  = false;
    cpu->N  = false;
+
+   cpu->type = type;
    return cpu;
 
 }
 
 void opUnknown(Cpu *cpu, Bus *bus){
    printf( "Unrecognized opcode 0x%02x at 0x%04x\n", bus->memory[cpu->PC], cpu->PC );
+   printf("Please make sure you are using the correct CPU type.\n");
    dumpBus(bus, "dump.bin");
    exit(0);
 
@@ -49,16 +52,36 @@ void opINX(Cpu *cpu, Bus *bus) {
    setZN(cpu, cpu->X);
    cpu->PC += 1;
 }
+void opDEC_A(Cpu *cpu, Bus *bus) {
+    (void)bus; // Unused
+    cpu->A = (cpu->A - 1) & 0xff;
+    setZN(cpu, cpu->A);
+    cpu->PC += 1;
+}
+
+void opINC_A(Cpu *cpu, Bus *bus) {
+    (void)bus; // Unused
+    cpu->A = (cpu->A + 1) & 0xff;
+    setZN(cpu, cpu->A);
+    cpu->PC += 1;
+}
 
 void opJMP_abs(Cpu *cpu, Bus *bus) { // only absolute for the hello world
    cpu->PC = readAddr(cpu, bus);
 }
 
-void opJMP_ind(Cpu *cpu, Bus *bus) {
+void opJMP_ind_buggy(Cpu *cpu, Bus *bus) {
     Addr ptr = readAddr(cpu, bus);
     Byte lo = bus->memory[ptr];
     // Emulate 6502 bug: if low byte is $FF, high byte wraps around
     Byte hi = bus->memory[(ptr & 0xFF00) | ((ptr + 1) & 0x00FF)];
+    cpu->PC = (Addr)lo | ((Addr)hi << 8);
+}
+
+void opJMP_ind_fixed(Cpu *cpu, Bus *bus) {
+    Addr ptr = readAddr(cpu, bus);
+    Byte lo = bus->memory[ptr];
+    Byte hi = bus->memory[(ptr + 1) & 0xFFFF]; // Correctly read the next byte
     cpu->PC = (Addr)lo | ((Addr)hi << 8);
 }
 
@@ -102,6 +125,17 @@ void opADC_imm(Cpu *cpu, Bus *bus){
    cpu->PC += 2;
 }
 
+void opCMP_imm(Cpu *cpu, Bus *bus) {
+   Byte value = bus->memory[cpu->PC + 1];
+   uint16_t result = cpu->A - value;
+   //set carry flag
+   cpu->C = (result <= 0xFF);
+   //set overflow flag
+   setV(cpu, cpu->A, value, result & 0xFF);
+   setZN(cpu, result & 0xFF);
+   cpu->PC += 2;
+}
+
 
 void dumpCpu(Cpu *cpu) {
    printf(" ┌──────────────┬──────┬───────────────────────────┐\n");
@@ -122,7 +156,7 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
 
 
 
- void initOpcodeTable(Opcodes opcode_table[256]) {
+ void initOpcodeTable(Opcodes opcode_table[256], CpuType type) {
    for (int i = 0; i < 256; i++) {
       opcode_table[i].handler = opUnknown;
       opcode_table[i].cycles = 2;
@@ -182,8 +216,9 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    opcode_table[0x94].handler = opSTY_zpX;  opcode_table[0x94].cycles = 4;
    opcode_table[0x8C].handler = opSTY_abs;  opcode_table[0x8C].cycles = 4;
 
-   // INCREMENT X
+   // INCREMENT
    opcode_table[0xE8].handler = opINX;      opcode_table[0xE8].cycles = 2;
+
 
    // BRANCH
    opcode_table[0xF0].handler = opBEQ;      opcode_table[0xF0].cycles = 2;
@@ -197,10 +232,6 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    //cycle count only valid if opBEQ does not take the branch, otherwise 3
    // TODO: fix the cycle counting by returning them from the handler
    // /!\ this will need to be done at some point i guess
-
-   //JMP
-   opcode_table[0x4C].handler = opJMP_abs;  opcode_table[0x4C].cycles = 3;
-   opcode_table[0x6C].handler = opJMP_ind;  opcode_table[0x6C].cycles = 5;
 
    // STACK
    opcode_table[0x48].handler = opPHA;      opcode_table[0x48].cycles = 3;
@@ -218,4 +249,24 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    opcode_table[0x38].handler = opSEC;      opcode_table[0x38].cycles = 2;
    opcode_table[0xF8].handler = opSED;      opcode_table[0xF8].cycles = 2;
    opcode_table[0x78].handler = opSEI;      opcode_table[0x78].cycles = 2;
+
+   // ARITHMETIC
+   opcode_table[0xC9].handler = opCMP_imm; opcode_table[0xC9].cycles = 2;
+   //JMP
+   opcode_table[0x4C].handler = opJMP_abs;  opcode_table[0x4C].cycles = 3;
+
+
+
+   if (type == CPU_6502) { // if we want to emulate the 6502 JMP bug
+      opcode_table[0x6C].handler = opJMP_ind_buggy;  opcode_table[0x6C].cycles = 5;
+
+
+   } else if (type == CPU_65C02) { // 65C02 fixed JMP behavior and other 65C02 instructions
+
+      opcode_table[0x6C].handler = opJMP_ind_fixed;  opcode_table[0x6C].cycles = 5;
+      opcode_table[0x3A].handler = opDEC_A;    opcode_table[0x3A].cycles = 2;
+      opcode_table[0x1A].handler = opINC_A;    opcode_table[0x1A].cycles = 2;
+
+   }
+
 }

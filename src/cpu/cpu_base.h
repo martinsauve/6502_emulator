@@ -6,6 +6,11 @@
 #ifndef CPU_BASE_H
 #define CPU_BASE_H
 
+typedef enum {
+   CPU_6502,
+   CPU_65C02,
+} CpuType;
+
 typedef struct {
    Addr  PC; // Program Counter
    Byte  SP; // Stack Pointer
@@ -20,6 +25,7 @@ typedef struct {
    bool    B;  // Break Command
    bool    V;  // Overflow Flag
    bool    N;  // Negative Flag
+   CpuType type; // CPU Type
 
 } Cpu;
 
@@ -29,7 +35,7 @@ typedef struct {
 } Opcodes;
 
 
-Cpu* initCpu();
+Cpu* initCpu(CpuType type);
 void dumpCpu(Cpu *cpu);
 
 void sleep_ms(int milliseconds);
@@ -38,7 +44,7 @@ void sleep_ms(int milliseconds);
 void opUnknown(Cpu*, Bus*);
 void opNOP(Cpu*, Bus*);
 void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table);
-void initOpcodeTable(Opcodes[256]);
+void initOpcodeTable(Opcodes[256], CpuType);
 
 Addr readAddr(Cpu*, Bus*);
 void setZN(Cpu *cpu, Byte val);

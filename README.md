@@ -26,3 +26,5 @@ Without those resources, this project would not have been possible. They are lis
 - [overflow flag maths explaination](https://www.righto.com/2012/12/the-6502-overflow-flag-explained.html)
 - [assembly introduction and compiler setup](https://www.youtube.com/watch?v=oO8_2JJV0B4&t=172s)
 - [vasm (Dr. Volker Barthelmann's Compiler)](http://www.compilers.de/vasm.html)
+
+- [wozmon.s](https://gist.github.com/beneater/8136c8b7f2fd95ccdd4562a498758217)

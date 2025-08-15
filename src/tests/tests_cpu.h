@@ -14,4 +14,5 @@ void test_sta_ops();
 void test_stx_ops();
 void test_sty_ops();
 void test_flags_ops();
+void test_jmp_indirect_wraparound();
 #endif // TESTS_CPU_H

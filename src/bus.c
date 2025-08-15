@@ -76,7 +76,7 @@ int loadBus(Bus *bus, const char *filename) {
 
 void busWrite(Bus *bus, Addr addr, Byte value) {
    bus->memory[addr] = value;
-   if (addr == 0xF001) { // trap for printing
+   if (addr == 0x5000) { // trap for printing
       putchar(value);
       fflush(stdout);
    }

@@ -6,7 +6,7 @@ CC := gcc
 CFLAGS := -Wall -Wextra -ggdb
 
 VASM := vasm6502_oldstyle
-VASMFLAGS := -Fbin -dotdir -esc
+VASMFLAGS := -Fbin -dotdir -esc -c02
 
 SOURCES := $(wildcard $(SRC)/*/*.c) $(wildcard $(SRC)/*.c)
 OBJECTS := $(SOURCES:.c=.o)

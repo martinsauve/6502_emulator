@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "../cpu/cpu.h"
 #include "../bus.h"
 #include "../6502_types.h"
 
 
 void test_flags_ops() {
-    Cpu *cpu = initCpu();
+    Cpu *cpu = initCpu(CPU_6502);
     Bus *bus = initBus();
 
     printf("Testing SEC (Set Carry):\n");
@@ -64,7 +65,7 @@ void print_lda_result(const char* label, Cpu *cpu, uint8_t expectedA) {
 
 void test_lda_ops() {
     Bus *bus = initBus();
-    Cpu *cpu = initCpu();
+    Cpu *cpu = initCpu(CPU_6502);
 
     // LDA Immediate (0xA9)
     cpu->PC = 0x0000;
@@ -168,7 +169,7 @@ void print_store_result(const char* label, uint8_t actual, uint8_t expected, uin
 void test_ldx_ops() {
     printf("\nTesting LDX...\n");
     Bus *bus = initBus();
-    Cpu *cpu = initCpu();
+    Cpu *cpu = initCpu(CPU_6502);
 
     // LDX Immediate (0xA2)
     cpu->PC = 0x0200;
@@ -217,7 +218,7 @@ void test_ldx_ops() {
 void test_ldy_ops() {
     printf("\nTesting LDY...\n");
     Bus *bus = initBus();
-    Cpu *cpu = initCpu();
+    Cpu *cpu = initCpu(CPU_6502);
 
     // LDY Immediate (0xA0)
     cpu->PC = 0x0300;
@@ -266,7 +267,7 @@ void test_ldy_ops() {
 void test_sta_ops() {
     printf("\nTesting STA...\n");
     Bus *bus = initBus();
-    Cpu *cpu = initCpu();
+    Cpu *cpu = initCpu(CPU_6502);
 
     cpu->A = 0xAA;
 
@@ -333,7 +334,7 @@ void test_sta_ops() {
 void test_stx_ops() {
     printf("\nTesting STX...\n");
     Bus *bus = initBus();
-    Cpu *cpu = initCpu();
+    Cpu *cpu = initCpu(CPU_6502);
 
     cpu->X = 0xBB;
 
@@ -366,7 +367,7 @@ void test_stx_ops() {
 void test_sty_ops() {
     printf("\nTesting STY...\n");
     Bus *bus = initBus();
-    Cpu *cpu = initCpu();
+    Cpu *cpu = initCpu(CPU_6502);
 
     cpu->Y = 0xCC;
 
@@ -393,4 +394,58 @@ void test_sty_ops() {
 
     free(bus);
     free(cpu);
+}
+
+void test_jmp_indirect_wraparound() {
+    printf("Testing JMP indirect wraparound behavior...\n");
+
+    // --- Test NMOS 6502 buggy behavior ---
+    Cpu *cpu_6502 = initCpu(CPU_6502);
+    Bus *bus_6502 = initBus();
+    Opcodes opcode_table_6502[256];
+    initOpcodeTable(opcode_table_6502, CPU_6502);
+
+    // Place opcode JMP ($02FF) at 0x1000
+    bus_6502->memory[0x1000] = 0x6C;         // JMP indirect
+    bus_6502->memory[0x1001] = 0xFF;         // Low byte of pointer
+    bus_6502->memory[0x1002] = 0x02;         // High byte of pointer
+
+    // Setup pointer table: $02FF = 0x34, $0200 = 0x12 (simulate bug)
+    bus_6502->memory[0x02FF] = 0x34;
+    bus_6502->memory[0x0200] = 0x12;
+
+    cpu_6502->PC = 0x1000;
+    step(cpu_6502, bus_6502, 1, opcode_table_6502);
+
+    // Expect PC = 0x1234 (buggy wrap!)
+    assert(cpu_6502->PC == 0x1234);
+
+    free(cpu_6502);
+    free(bus_6502);
+
+    // --- Test 65C02 correct behavior ---
+    Cpu *cpu_65c02 = initCpu(CPU_65C02);
+    Bus *bus_65c02 = initBus();
+    Opcodes opcode_table_65c02[256];
+    initOpcodeTable(opcode_table_65c02, CPU_65C02);
+
+    // Place opcode JMP ($02FF) at 0x1000
+    bus_65c02->memory[0x1000] = 0x6C;
+    bus_65c02->memory[0x1001] = 0xFF;
+    bus_65c02->memory[0x1002] = 0x02;
+
+    // Setup pointer table: $02FF = 0x34, $0300 = 0x12 (no wrap)
+    bus_65c02->memory[0x02FF] = 0x34;
+    bus_65c02->memory[0x0300] = 0x12;
+
+    cpu_65c02->PC = 0x1000;
+    step(cpu_65c02, bus_65c02, 1, opcode_table_65c02);
+
+    // Expect PC = 0x1234 (proper fetch!)
+    assert(cpu_65c02->PC == 0x1234);
+
+    free(cpu_65c02);
+    free(bus_65c02);
+
+    printf("JMP indirect wraparound test passed!\n");
 }
