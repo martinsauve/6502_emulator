@@ -49,7 +49,7 @@ void setV(Cpu *cpu, Byte a, Byte b, uint16_t result) {
 }
 
 Addr readAddr(Cpu *cpu, Bus *bus) {
-   return (Addr)bus->memory[cpu->PC + 1] | ((Byte)bus->memory[cpu->PC + 2] << 8);
+   return (Addr)busRead(bus, cpu->PC + 1) | ((Byte)busRead(bus, cpu->PC + 2) << 8);
 }
 
 void pushStack(Cpu *cpu, Bus *bus, Byte value) {

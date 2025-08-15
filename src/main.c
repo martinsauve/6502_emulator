@@ -16,7 +16,7 @@ void runTests() {
    //test_sty_ops();
 }
 
-#define DEBUG
+//#define DEBUG
 
 
 
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 
    char *rom_path;
    if (argc == 1) { // no args
-      rom_path = "roms/wozmon.bin";
+      rom_path = "roms/jump.bin";
    } else {
       rom_path = argv[1];
    }
@@ -38,11 +38,11 @@ int main(int argc, char *argv[]) {
 
    Cpu *cpu = initCpu(CPU_65C02);
    Bus *bus = initBus();
-   loadRom(bus, rom_path, 0xFF00);
+   loadRom(bus, rom_path, 0x0600);
    Opcodes opcode_table[256];
    initOpcodeTable(opcode_table, cpu->type);
-   cpu->PC = 0xFF00;
-   for (int i = 0; i < 500; i++){
+   cpu->PC = 0x0600;
+   for (int i = 0; i < 5000; i++){
       step(cpu, bus, 1, opcode_table);
       //dumpCpu(cpu);
    }

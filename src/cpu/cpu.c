@@ -33,7 +33,7 @@ Cpu* initCpu(CpuType type) {
 }
 
 void opUnknown(Cpu *cpu, Bus *bus){
-   printf( "Unrecognized opcode 0x%02x at 0x%04x\n", bus->memory[cpu->PC], cpu->PC );
+   printf( "Unrecognized opcode 0x%02x at 0x%04x\n", busRead(bus, cpu->PC), cpu->PC );
    printf("Please make sure you are using the correct CPU type.\n");
    dumpBus(bus, "dump.bin");
    exit(0);
@@ -45,6 +45,12 @@ void opNOP(Cpu *cpu, Bus *bus) {
    cpu->PC += 1;
 }
 
+void opDEY(Cpu *cpu, Bus *bus) {
+   (void)bus; // Unused
+   cpu->Y = (cpu->Y - 1) & 0xff;
+   setZN(cpu, cpu->Y);
+   cpu->PC += 1;
+}
 
 void opINX(Cpu *cpu, Bus *bus) {
    (void)bus; // Unused
@@ -72,21 +78,21 @@ void opJMP_abs(Cpu *cpu, Bus *bus) { // only absolute for the hello world
 
 void opJMP_ind_buggy(Cpu *cpu, Bus *bus) {
     Addr ptr = readAddr(cpu, bus);
-    Byte lo = bus->memory[ptr];
+    Byte lo = busRead(bus, ptr);
     // Emulate 6502 bug: if low byte is $FF, high byte wraps around
-    Byte hi = bus->memory[(ptr & 0xFF00) | ((ptr + 1) & 0x00FF)];
+    Byte hi = busRead(bus, (ptr & 0xFF00) | ((ptr + 1) & 0x00FF));
     cpu->PC = (Addr)lo | ((Addr)hi << 8);
 }
 
 void opJMP_ind_fixed(Cpu *cpu, Bus *bus) {
     Addr ptr = readAddr(cpu, bus);
-    Byte lo = bus->memory[ptr];
-    Byte hi = bus->memory[(ptr + 1) & 0xFFFF]; // Correctly read the next byte
+    Byte lo = busRead(bus, ptr);
+    Byte hi = busRead(bus, (ptr + 1) & 0xFFFF); // Correctly read the next byte
     cpu->PC = (Addr)lo | ((Addr)hi << 8);
 }
 
 void opJSR(Cpu *cpu, Bus *bus) {
-   Addr target = bus->memory[cpu->PC +1] | (bus->memory[cpu->PC + 2] << 8);
+   Addr target = busRead(bus, cpu->PC +1) | (busRead(bus, cpu->PC + 2) << 8);
    Addr ret = cpu->PC + 2;
    pushStack(cpu, bus, (ret >> 8) & 0xFF); //high byte
    pushStack(cpu, bus, ret & 0xFF); //high byte
@@ -112,7 +118,7 @@ void opPLA(Cpu *cpu, Bus *bus) {
 }
 
 void opADC_imm(Cpu *cpu, Bus *bus){
-   Byte value = bus->memory[cpu->PC + 1];
+   Byte value = busRead(bus, cpu->PC + 1);
    uint16_t sum = cpu->A + value + cpu->C;
    //set carry flag
    cpu->C = (sum > 0xFF);
@@ -126,13 +132,20 @@ void opADC_imm(Cpu *cpu, Bus *bus){
 }
 
 void opCMP_imm(Cpu *cpu, Bus *bus) {
-   Byte value = bus->memory[cpu->PC + 1];
+   Byte value = busRead(bus, cpu->PC + 1);
    uint16_t result = cpu->A - value;
    //set carry flag
    cpu->C = (result <= 0xFF);
    //set overflow flag
    setV(cpu, cpu->A, value, result & 0xFF);
    setZN(cpu, result & 0xFF);
+   cpu->PC += 2;
+}
+
+void opAND_imm(Cpu *cpu, Bus *bus) {
+   Byte value = busRead(bus, cpu->PC + 1);
+   cpu->A &= value;
+   setZN(cpu, cpu->A);
    cpu->PC += 2;
 }
 
@@ -149,7 +162,7 @@ void dumpCpu(Cpu *cpu) {
 }
 
 void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
-   Byte op = bus->memory[cpu->PC];
+   Byte op = busRead(bus, cpu->PC);
    table[op].handler(cpu, bus);
    sleep_ms(table[op].cycles / freq);
 }
@@ -216,13 +229,14 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    opcode_table[0x94].handler = opSTY_zpX;  opcode_table[0x94].cycles = 4;
    opcode_table[0x8C].handler = opSTY_abs;  opcode_table[0x8C].cycles = 4;
 
-   // INCREMENT
+   // INCREMENT/DECREMENT
    opcode_table[0xE8].handler = opINX;      opcode_table[0xE8].cycles = 2;
+   opcode_table[0x88].handler = opDEY;      opcode_table[0x88].cycles = 2;
 
 
    // BRANCH
    opcode_table[0xF0].handler = opBEQ;      opcode_table[0xF0].cycles = 2;
-   opcode_table[0x0D].handler = opBNE;      opcode_table[0x0D].cycles = 2;
+   opcode_table[0xD0].handler = opBNE;      opcode_table[0xD0].cycles = 2;
    opcode_table[0x90].handler = opBCC;      opcode_table[0x90].cycles = 2;
    opcode_table[0xB0].handler = opBCS;      opcode_table[0xB0].cycles = 2;
    opcode_table[0x30].handler = opBMI;      opcode_table[0x30].cycles = 2;
@@ -252,6 +266,7 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
 
    // ARITHMETIC
    opcode_table[0xC9].handler = opCMP_imm; opcode_table[0xC9].cycles = 2;
+   opcode_table[0x29].handler = opAND_imm; opcode_table[0x29].cycles = 2;
    //JMP
    opcode_table[0x4C].handler = opJMP_abs;  opcode_table[0x4C].cycles = 3;
 

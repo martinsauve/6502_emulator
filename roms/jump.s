@@ -10,7 +10,7 @@
       NOP
       BRK
    PUTCHAR:
-      STA $F001 ;should be captured by the emulator!
+      STA $5000 ;should be captured by the emulator!
       RTS
 
    MESSAGE:
