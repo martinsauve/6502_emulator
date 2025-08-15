@@ -51,6 +51,12 @@ void opDEY(Cpu *cpu, Bus *bus) {
    setZN(cpu, cpu->Y);
    cpu->PC += 1;
 }
+void opDEX(Cpu *cpu, Bus *bus) {
+   (void)bus; // Unused
+   cpu->X = (cpu->X - 1) & 0xff;
+   setZN(cpu, cpu->X);
+   cpu->PC += 1;
+}
 
 void opINX(Cpu *cpu, Bus *bus) {
    (void)bus; // Unused
@@ -165,6 +171,8 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    Byte op = busRead(bus, cpu->PC);
    table[op].handler(cpu, bus);
    sleep_ms(table[op].cycles / freq);
+   //bus->memory[0x5001] = 0x42; // Reset the memory location to 0 after each step
+   // TODO : ACIA handling
 }
 
 
@@ -232,6 +240,7 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    // INCREMENT/DECREMENT
    opcode_table[0xE8].handler = opINX;      opcode_table[0xE8].cycles = 2;
    opcode_table[0x88].handler = opDEY;      opcode_table[0x88].cycles = 2;
+   opcode_table[0xCA].handler = opDEX;      opcode_table[0xCA].cycles = 2;
 
 
    // BRANCH

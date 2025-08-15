@@ -1,4 +1,4 @@
-      .org $0600
+      .org $FF00
       LDX #0
    LOOP:
       LDA MESSAGE,X

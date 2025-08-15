@@ -6,9 +6,9 @@
 #include "tests/tests_cpu.h"
 
 void runTests() {
-   test_jmp_indirect_wraparound();
+   //test_jmp_indirect_wraparound();
    //test_flags_ops();
-   //test_lda_ops();
+   test_lda_ops();
    //test_ldx_ops();
    //test_ldy_ops();
    //test_sta_ops();
@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
 
    char *rom_path;
    if (argc == 1) { // no args
+      //rom_path = "roms/wozmon.bin";
       rom_path = "roms/jump.bin";
    } else {
       rom_path = argv[1];
@@ -38,11 +39,12 @@ int main(int argc, char *argv[]) {
 
    Cpu *cpu = initCpu(CPU_65C02);
    Bus *bus = initBus();
-   loadRom(bus, rom_path, 0x0600);
+   loadRom(bus, rom_path, 0xFF00);
    Opcodes opcode_table[256];
    initOpcodeTable(opcode_table, cpu->type);
-   cpu->PC = 0x0600;
-   for (int i = 0; i < 5000; i++){
+   cpu->PC = 0xFF00;
+   bool shouldStep = true;
+   while (shouldStep){
       step(cpu, bus, 1, opcode_table);
       //dumpCpu(cpu);
    }

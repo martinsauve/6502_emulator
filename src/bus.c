@@ -15,21 +15,38 @@ int dumpBus(Bus *bus, char *filename) {
       return 1;
    }
 
-   fwrite(bus->memory, sizeof(bus->memory), 1, fp);
+   fwrite(bus->rom, sizeof(bus->rom), 1, fp);
    fclose(fp);
-   printf("BUS dumped to %s\n", filename);
+   printf("Rom dumped to %s\n", filename);
    return 0;
 }
 
 int loadRom(Bus *bus, const char *filename, Addr offset) {
-   size_t max_size = sizeof(bus->memory) - offset;
+   printf("Loading ROM from '%s' at offset 0x%04x\n", filename, offset);
+   if ( offset < ROM_START ){
+      fprintf( //NOLINT
+            stderr,
+            "offset 0x%04x is incorrect, ROM starts at 0x%04x",
+            offset, ROM_START);
+   }
+
+   int offset_in_rom = offset - ROM_START;
+//   if (offset > ROM_END){
+//      fprintf( //NOLINT
+//            stderr,
+//            "offset 0x%04x is incorrect, ROM ends at 0x%04x",
+//            offset, ROM_END);
+//            // unreachable due to size of type Addr !!
+//   }
+
+   size_t max_size = ROM_SIZE - offset_in_rom;
    FILE *f = fopen(filename, "rb");
    if (!f) {
       perror("Failed to open file");
       return -1;
    }
    // Read up to mem_size bytes
-   size_t bytes_read = fread(bus->memory + offset, 1, max_size, f);
+   size_t bytes_read = fread(bus->rom + offset_in_rom, 1, max_size, f);
    int extra = fgetc(f);
    fclose(f);
    if (extra != EOF) {
@@ -44,50 +61,30 @@ int loadRom(Bus *bus, const char *filename, Addr offset) {
 
 }
 
-int loadBus(Bus *bus, const char *filename) {
-   size_t mem_size = sizeof(bus->memory);
-   FILE *f = fopen(filename, "rb");
-   if (!f) {
-      perror("Failed to open file");
-      return -1;
-   }
-   // Read up to mem_size bytes
-   size_t bytes_read = fread(bus->memory, 1, mem_size, f);
-
-   // Check for overflow: try reading one more byte
-   int extra = fgetc(f);
-   fclose(f);
-
-   if (extra != EOF) {
-      fprintf( //NOLINT
-            stderr,
-            "Error: Input file '%s' is larger than %zu bytes (64K bus overflow)\n",
-            filename, mem_size);
-      return -1;
-   }
-   if (bytes_read != mem_size) {
-      fprintf( //NOLINT
-            stderr,
-            "Warning: Input file '%s' is smaller than %zu bytes, loaded %zu bytes\n",
-            filename, mem_size, bytes_read);
-   }
-   return (int)bytes_read;
-}
-
 void busWrite(Bus *bus, Addr addr, Byte value) {
-   if (addr == 0x5000) { // trap for printing
+   if (addr >= RAM_START && addr <=RAM_END){
+      bus->ram[addr - RAM_START] = value;
+   } else if (addr >= ROM_START && addr <= ROM_END){
+      printf("Error: trying to write to ROM (addr 0x%04x is readonly)\n", addr);
+      abort(); // CRASH FOR NOW
+   } else if (addr == 0x5000) { // trap for printing
+      // TODO: IMPLEMENT ACIA
       putchar(value);
       fflush(stdout);
    } else {
-      bus->memory[addr] = value;
+      printf("Error: addr 0x%04x currently unmapped)\n", addr);
+      abort();
    }
 }
 
 Byte busRead(Bus *bus, Addr addr) {
-   if (addr == 0x5000) { // trap for reading
-      return getchar();
+   if (addr >= RAM_START && addr <=RAM_END) {
+      return bus->ram[addr - RAM_START];
+   } else if (addr >= ROM_START && addr <= ROM_END ){
+      return bus->rom[addr - ROM_START];
    } else {
-      return bus->memory[addr];
+      printf("Error: addr 0x%04x currently unmapped)\n", addr);
+      return 1;
    }
 }
 
@@ -95,7 +92,8 @@ Byte busRead(Bus *bus, Addr addr) {
 Bus* initBus(void) {
    Bus *bus = NULL;
    bus = malloc(sizeof *bus);
-   memset(bus->memory, 0, sizeof(bus->memory));           //NOLINT
+   memset(bus->ram, 0, RAM_SIZE);           //NOLINT
+   memset(bus->rom, 0, ROM_SIZE);           //NOLINT
    //memset(bus->MAP.ZP, 'Z', sizeof(bus->MAP.ZP));         //NOLINT
    //memset(bus->MAP.STACK, 'S', sizeof(bus->MAP.STACK));   //NOLINT
    //memset(bus->MAP.IRQBRK, 'B', sizeof(bus->MAP.IRQBRK)); //NOLINT
