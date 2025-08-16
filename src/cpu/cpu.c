@@ -14,14 +14,14 @@ Cpu* initCpu(CpuType type) {
    cpu = malloc(sizeof *cpu);
 
    cpu->PC = 0;
-   cpu->SP = 0xFF;
+   cpu->SP = 0x00;
    cpu->A  = 0;
    cpu->X  = 0;
    cpu->Y  = 0;
 
    cpu->C  = false;
    cpu->Z  = false;
-   cpu->I  = false;
+   cpu->I  = true;
    cpu->D  = false;
    cpu->B  = false;
    cpu->V  = false;
@@ -35,8 +35,8 @@ Cpu* initCpu(CpuType type) {
 void opUnknown(Cpu *cpu, Bus *bus){
    printf( "Unrecognized opcode 0x%02x at 0x%04x\n", busRead(bus, cpu->PC), cpu->PC );
    printf("Please make sure you are using the correct CPU type.\n");
-   dumpBus(bus, "dump.bin");
-   exit(0);
+   dumpRom(bus, "dump.bin");
+   exit(1);
 
 }
 
@@ -64,6 +64,15 @@ void opINX(Cpu *cpu, Bus *bus) {
    setZN(cpu, cpu->X);
    cpu->PC += 1;
 }
+
+void opINY(Cpu *cpu, Bus *bus) {
+   (void)bus; // Unused
+   cpu->Y = (cpu->Y + 1) & 0xff;
+   setZN(cpu, cpu->Y);
+   cpu->PC += 1;
+}
+
+
 void opDEC_A(Cpu *cpu, Bus *bus) {
     (void)bus; // Unused
     cpu->A = (cpu->A - 1) & 0xff;
@@ -78,12 +87,21 @@ void opINC_A(Cpu *cpu, Bus *bus) {
     cpu->PC += 1;
 }
 
+void opINC_zp(Cpu *cpu, Bus *bus) {
+   Byte addr = busRead(bus, cpu->PC+1);
+   uint16_t value = busRead(bus, addr);
+   value++;
+   busWrite(bus, addr, (value & 0xff));
+   setZN(cpu, value);
+   cpu->PC += 2;
+}
+
 void opJMP_abs(Cpu *cpu, Bus *bus) { // only absolute for the hello world
    cpu->PC = readAddr(cpu, bus);
 }
 
 void opJMP_ind_buggy(Cpu *cpu, Bus *bus) {
-    Addr ptr = readAddr(cpu, bus);
+    Addr ptr = (Addr)busRead(bus, cpu->PC + 1) | ((Byte)busRead(bus, cpu->PC + 2) << 8);
     Byte lo = busRead(bus, ptr);
     // Emulate 6502 bug: if low byte is $FF, high byte wraps around
     Byte hi = busRead(bus, (ptr & 0xFF00) | ((ptr + 1) & 0x00FF));
@@ -91,7 +109,9 @@ void opJMP_ind_buggy(Cpu *cpu, Bus *bus) {
 }
 
 void opJMP_ind_fixed(Cpu *cpu, Bus *bus) {
-    Addr ptr = readAddr(cpu, bus);
+    dumpCpu(cpu);
+    printf("indirect jump!!");
+    Addr ptr = (Addr)busRead(bus, cpu->PC + 1) | ((Byte)busRead(bus, cpu->PC + 2) << 8);
     Byte lo = busRead(bus, ptr);
     Byte hi = busRead(bus, (ptr + 1) & 0xFFFF); // Correctly read the next byte
     cpu->PC = (Addr)lo | ((Addr)hi << 8);
@@ -136,14 +156,54 @@ void opADC_imm(Cpu *cpu, Bus *bus){
    setZN(cpu, cpu->A);
    cpu->PC += 2;
 }
+void opSBC_zp(Cpu *cpu, Bus *bus){
+   Byte addr = busRead(bus, cpu->PC + 1);
+   Byte value = busRead(bus, addr);
+   uint16_t result = cpu->A - value - (cpu->C ? 0:1);
+   //set carry flag
+   cpu->C = (result < 0x100);
+   //set overflow flag
+   setV(cpu, cpu->A, value, result & 0xFF);
+
+   cpu->A = result & 0xFF;
+
+   setZN(cpu, cpu->A);
+   cpu->PC += 2;
+}
 
 void opCMP_imm(Cpu *cpu, Bus *bus) {
    Byte value = busRead(bus, cpu->PC + 1);
    uint16_t result = cpu->A - value;
    //set carry flag
-   cpu->C = (result <= 0xFF);
-   //set overflow flag
-   setV(cpu, cpu->A, value, result & 0xFF);
+   cpu->C = (cpu->A >= value);
+   setZN(cpu, result & 0xFF);
+   cpu->PC += 2;
+}
+
+void opCMP_zp(Cpu *cpu, Bus *bus) {
+   Byte addr = busRead(bus, cpu->PC + 1);
+   Byte value = busRead(bus, addr);
+   uint16_t result = cpu->A - value;
+   //set carry flag
+   cpu->C = (cpu->A >= value);
+   setZN(cpu, result & 0xFF);
+   cpu->PC += 2;
+}
+
+void opCPY_imm(Cpu *cpu, Bus *bus) {
+   Byte value = busRead(bus, cpu->PC + 1);
+   uint16_t result = cpu->Y - value;
+   //set carry flag
+   cpu->C = (cpu->Y >= value);
+   setZN(cpu, result & 0xFF);
+   cpu->PC += 2;
+}
+void opCPY_zp(Cpu *cpu, Bus *bus) {
+   Byte addr = busRead(bus, cpu->PC + 1);
+   Byte value = busRead(bus, addr);
+   uint16_t result = cpu->Y - value;
+   //set carry flag
+   cpu->C = (cpu->Y >= value);
    setZN(cpu, result & 0xFF);
    cpu->PC += 2;
 }
@@ -153,6 +213,73 @@ void opAND_imm(Cpu *cpu, Bus *bus) {
    cpu->A &= value;
    setZN(cpu, cpu->A);
    cpu->PC += 2;
+}
+
+void opBIT_zp(Cpu *cpu, Bus *bus) {
+   Byte addr = busRead(bus, cpu->PC + 1);
+   Byte value = busRead(bus, addr);
+   Byte result = cpu->A & value;
+   cpu->Z = (result == 0 );
+   cpu->N = (value & 0x80) != 0;
+   cpu->V = (value & 0x40) != 0;
+   cpu->PC += 2;
+}
+
+void opEOR_imm(Cpu *cpu, Bus *bus) {
+   Byte value = busRead(bus, cpu->PC + 1);
+   cpu->A ^= value;
+   setZN(cpu, cpu->A);
+   cpu->PC += 2;
+}
+void opROL_A(Cpu *cpu, Bus *bus) {
+    (void)bus;
+    bool old_carry = cpu->C;
+    cpu->C = (cpu->A & 0x80) != 0;
+    cpu->A = (cpu->A << 1) | (old_carry ? 1 : 0);
+    setZN(cpu, cpu->A);
+    cpu->PC += 1;
+}
+
+void opROL_zp(Cpu *cpu, Bus *bus) {
+   // fetch a one byte address
+   Byte addr = busRead(bus, cpu->PC + 1);
+   // read value from zp
+   Byte value = busRead(bus, addr);
+
+   // rotate left (carry flag goes in bit 0, old bit 7 goes to carry)
+   bool old_carry = cpu->C;
+   cpu->C = (value & 0x80) != 0;
+   Byte result = (value<<1) | (old_carry ? 1 : 0);
+
+   //write result back to memory
+   busWrite(bus, (Addr)addr, result);
+   setZN(cpu, result);
+   cpu->PC += 2;
+}
+
+void opASL_A(Cpu *cpu, Bus *bus) {
+   (void)bus;
+   Byte value = cpu->A << 1;
+   cpu->C = ( (cpu->A & 0x80) != 0 );
+   cpu->A = value;
+   setZN(cpu, cpu->A);
+   cpu->PC += 1;
+}
+
+void opLSR_A(Cpu *cpu, Bus *bus) {
+   (void)bus;
+   cpu->C  = (cpu->A & 0x01) != 0;
+   Byte value = cpu->A >> 1;
+   cpu->A = value;
+   setZN(cpu, cpu->A);
+   cpu->PC += 1;
+}
+
+void opORA_imm(Cpu *cpu, Bus *bus){
+   Byte value = busRead(bus, cpu->PC + 1);
+   cpu->A |= value;
+   setZN(cpu, cpu->A);
+   cpu->PC +=2;
 }
 
 
@@ -168,10 +295,10 @@ void dumpCpu(Cpu *cpu) {
 }
 
 void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
+   pollAciaInput(bus);
    Byte op = busRead(bus, cpu->PC);
    table[op].handler(cpu, bus);
-   sleep_ms(table[op].cycles / freq);
-   //bus->memory[0x5001] = 0x42; // Reset the memory location to 0 after each step
+   //sleep_ms(table[op].cycles / freq);
    // TODO : ACIA handling
 }
 
@@ -237,10 +364,15 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    opcode_table[0x94].handler = opSTY_zpX;  opcode_table[0x94].cycles = 4;
    opcode_table[0x8C].handler = opSTY_abs;  opcode_table[0x8C].cycles = 4;
 
+   // TRANSFER
+
+   opcode_table[0xAA].handler = opTAX;      opcode_table[0xAA].cycles = 2;
    // INCREMENT/DECREMENT
    opcode_table[0xE8].handler = opINX;      opcode_table[0xE8].cycles = 2;
+   opcode_table[0xC8].handler = opINY;      opcode_table[0xC8].cycles = 2;
    opcode_table[0x88].handler = opDEY;      opcode_table[0x88].cycles = 2;
    opcode_table[0xCA].handler = opDEX;      opcode_table[0xCA].cycles = 2;
+   opcode_table[0xE6].handler = opINC_zp;   opcode_table[0xE6].cycles = 5;
 
 
    // BRANCH
@@ -275,7 +407,19 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
 
    // ARITHMETIC
    opcode_table[0xC9].handler = opCMP_imm; opcode_table[0xC9].cycles = 2;
+   opcode_table[0xC5].handler = opCMP_zp;  opcode_table[0xC5].cycles = 2;
+   opcode_table[0xC0].handler = opCPY_imm; opcode_table[0xC0].cycles = 2;
+   opcode_table[0xC4].handler = opCPY_imm; opcode_table[0xC4].cycles = 3;
    opcode_table[0x29].handler = opAND_imm; opcode_table[0x29].cycles = 2;
+   opcode_table[0x24].handler = opBIT_zp;  opcode_table[0x29].cycles = 3;
+   opcode_table[0x49].handler = opEOR_imm; opcode_table[0x49].cycles = 2;
+   opcode_table[0x0A].handler = opASL_A;   opcode_table[0x0A].cycles = 2;
+   opcode_table[0x4A].handler = opLSR_A;   opcode_table[0x4a].cycles = 2;
+   opcode_table[0x09].handler = opORA_imm; opcode_table[0x09].cycles = 2;
+   opcode_table[0x2A].handler = opROL_A;   opcode_table[0x2A].cycles = 2;
+   opcode_table[0x26].handler = opROL_zp;  opcode_table[0x26].cycles = 5;
+   opcode_table[0x69].handler = opADC_imm; opcode_table[0x69].cycles = 2;
+   opcode_table[0xE5].handler = opSBC_zp;  opcode_table[0xE5].cycles = 3;
    //JMP
    opcode_table[0x4C].handler = opJMP_abs;  opcode_table[0x4C].cycles = 3;
 

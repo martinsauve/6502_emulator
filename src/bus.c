@@ -5,8 +5,54 @@
 #include <stdlib.h>
 #include "bus.h"
 
+Byte aciaReadData(Acia *acia) {
+   if (acia->input_ready) {
+      acia->input_ready = false;
+      char value = acia->input_buffer;
+      switch (value) {
+         case '\n':  // CR
+            return 0x0D;
+         case '\r':
+            return 0x0D;
+         default:
+            return value;
+      }
+   } else {
+      fprintf(stderr, "Error: ACIA read attempted with no data available\n");
+      return 0; // or some error code
+   }
 
-int dumpBus(Bus *bus, char *filename) {
+}
+
+Byte aciaReadStatus(Acia *acia) {
+   // Bit # (0x08) set = input ready
+   return acia->input_ready ? 0x08 : 0x00;
+}
+
+void aciaWriteData(Acia *acia, Byte value) {
+   switch (value) {
+      case 0x0D:
+         putchar('\n');
+         break;
+      default:
+         putchar(value);
+         break;
+   }
+   fflush(stdout);
+}
+
+void pollAciaInput(Bus *bus) {
+   if (!bus->acia.input_ready) {
+      int ch = getchar();
+      if (ch != EOF) {
+         bus->acia.input_buffer = (Byte)ch;
+         bus->acia.input_ready = true;
+      }
+   }
+}
+
+
+int dumpRom(Bus *bus, char *filename) {
    FILE *fp;
    fp = fopen(filename, "wb");
 
@@ -18,6 +64,20 @@ int dumpBus(Bus *bus, char *filename) {
    fwrite(bus->rom, sizeof(bus->rom), 1, fp);
    fclose(fp);
    printf("Rom dumped to %s\n", filename);
+   return 0;
+}
+int dumpRam(Bus *bus, char *filename) {
+   FILE *fp;
+   fp = fopen(filename, "wb");
+
+   if (fp==NULL) {
+      perror("Error opening file");
+      return 1;
+   }
+
+   fwrite(bus->ram, sizeof(bus->ram), 1, fp);
+   fclose(fp);
+   printf("Ram dumped to %s\n", filename);
    return 0;
 }
 
@@ -65,26 +125,30 @@ void busWrite(Bus *bus, Addr addr, Byte value) {
    if (addr >= RAM_START && addr <=RAM_END){
       bus->ram[addr - RAM_START] = value;
    } else if (addr >= ROM_START && addr <= ROM_END){
-      printf("Error: trying to write to ROM (addr 0x%04x is readonly)\n", addr);
+      fprintf(stderr, "Error: trying to write to ROM (addr 0x%04x is readonly)\n", addr);
       abort(); // CRASH FOR NOW
-   } else if (addr == 0x5000) { // trap for printing
-      // TODO: IMPLEMENT ACIA
-      putchar(value);
-      fflush(stdout);
+   } else if (addr == ACIA_DATA) { // trap for printing
+      aciaWriteData(&bus->acia, value);
    } else {
-      printf("Error: addr 0x%04x currently unmapped)\n", addr);
+      fprintf(stderr, "Error: (write) addr 0x%04x currently unmapped\n", addr);
       abort();
    }
 }
 
 Byte busRead(Bus *bus, Addr addr) {
-   if (addr >= RAM_START && addr <=RAM_END) {
+   if (addr >= RAM_START && addr <=RAM_END)
+   {
       return bus->ram[addr - RAM_START];
-   } else if (addr >= ROM_START && addr <= ROM_END ){
+   }
+   else if (addr >= ROM_START && addr <= ROM_END ) {
       return bus->rom[addr - ROM_START];
+   } else if (addr == ACIA_DATA) {
+      return aciaReadData(&bus->acia);
+   } else if (addr == ACIA_STATUS) {
+      return aciaReadStatus(&bus->acia);
    } else {
-      printf("Error: addr 0x%04x currently unmapped)\n", addr);
-      return 1;
+      fprintf(stderr, "Error: (read) addr 0x%04x currently unmapped\n", addr);
+      return -1;
    }
 }
 

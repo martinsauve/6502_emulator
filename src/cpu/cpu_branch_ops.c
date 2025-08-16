@@ -56,8 +56,9 @@ void opBPL(Cpu *cpu, Bus *bus) { // branch if N is NOT set
    return;
 }
 
+// CHECKMEEEEE
 void opBVC(Cpu *cpu, Bus *bus) { // branch if V is clear
-   if (!cpu->V) {
+   if (cpu->V) {
       cpu->PC+=2;
       return;
    }
@@ -65,8 +66,9 @@ void opBVC(Cpu *cpu, Bus *bus) { // branch if V is clear
    return;
 }
 
+// CHECKME THIS WAS MY POTENTIAL BUG!!!!!
 void opBVS(Cpu *cpu, Bus *bus) { // branch if V is NOT clear
-   if (cpu->V) {
+   if (!cpu->V) {
       cpu->PC+=2;
       return;
    }

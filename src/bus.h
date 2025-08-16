@@ -14,10 +14,10 @@
 #define ROM_START   0x8000
 #define ROM_END     (ROM_START + ROM_SIZE - 1)
 
-#define ACIA_DATA   = 0x5000
-#define ACIA_STATUS = 0x5001
-#define ACIA_CMD    = 0x5002
-#define ACIA_CTRL   = 0x5003
+#define ACIA_DATA    0x5000
+#define ACIA_STATUS  0x5001
+#define ACIA_CMD     0x5002
+#define ACIA_CTRL    0x5003
 
 #define STACK_SIZE   0x0100 // 256 bytes of stack
 #define STACK_START  0x0100
@@ -44,10 +44,12 @@ typedef struct {
 } Bus;
 
 
-int dumpBus(Bus *mem, char *filename);
+int dumpRom(Bus *mem, char *filename);
+int dumpRam(Bus *mem, char *filename);
 int loadRom(Bus *bus, const char *filename, Addr offset);
 void busWrite(Bus *bus, Addr addr, Byte value);
 Byte busRead(Bus *bus, Addr addr);
+void pollAciaInput(Bus *bus);
 
 Bus* initBus(void);
 

@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include "../bus.h"
 #include "../6502_types.h"
+#include <stdio.h>
 
 //*******************************************
 // LOAD/STORE OPERATIONS
@@ -297,4 +298,12 @@ void opSTY_abs(Cpu *cpu, Bus *bus) {
    Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
    busWrite(bus, addr, cpu->Y);
    cpu->PC += 3;
+}
+
+
+void opTAX(Cpu *cpu, Bus *bus) {
+   (void)bus;
+   cpu->X = cpu->A;
+   setZN(cpu, cpu->X);
+   cpu->PC += 1;
 }

@@ -50,4 +50,9 @@ void opSTY_zp(Cpu*, Bus*);
 void opSTY_zpX(Cpu*, Bus*);
 void opSTY_abs(Cpu*, Bus*);
 
+
+// transfers
+
+void opTAX(Cpu*, Bus*);
+
 #endif // CPU_LOAD_STORE_OPS_H

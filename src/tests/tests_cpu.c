@@ -142,7 +142,7 @@ void test_lda_ops() {
     opLDA_indY(cpu, bus);
     print_lda_result("LDA (ind),Y", cpu, 0xEF);
 
-    dumpBus(bus, "dump.bin");
+    dumpRam(bus, "dump.bin");
     printf("LDA opcodes tested.\n");
 
     free(bus);
@@ -286,45 +286,45 @@ void test_sta_ops() {
     print_store_result("STA zp,X", bus->ram[0x0021], 0xAA, 0x0021);
 
     // STA Absolute (0x8D)
-    bus->ram[0x0404] = 0x8D;
-    bus->ram[0x0405] = 0x00;
-    bus->ram[0x0406] = 0x50;
+    bus->ram[0x0004] = 0x8D;
+    bus->ram[0x0005] = 0x00;
+    bus->ram[0x0006] = 0x00;
     opSTA_abs(cpu, bus);
-    print_store_result("STA abs", bus->ram[0x5000], 0xAA, 0x5000);
+    print_store_result("STA abs", bus->ram[0x0000], 0xAA, 0x0000);
 
     // STA Absolute,X (0x9D)
     cpu->X = 0x02;
     bus->ram[0x0407] = 0x9D;
     bus->ram[0x0408] = 0x00;
-    bus->ram[0x0409] = 0x60;
+    bus->ram[0x0409] = 0x30;
     opSTA_absX(cpu, bus);
-    print_store_result("STA abs,X", bus->ram[0x6002], 0xAA, 0x6002);
+    print_store_result("STA abs,X", bus->ram[0x3002], 0xAA, 0x3002);
 
     // STA Absolute,Y (0x99)
     cpu->Y = 0x01;
     bus->ram[0x040A] = 0x99;
     bus->ram[0x040B] = 0x00;
-    bus->ram[0x040C] = 0x70;
+    bus->ram[0x040C] = 0x20;
     opSTA_absY(cpu, bus);
-    print_store_result("STA abs,Y", bus->ram[0x7001], 0xAA, 0x7001);
+    print_store_result("STA abs,Y", bus->ram[0x2001], 0xAA, 0x2001);
 
     // STA (indirect,X) (0x81)
     cpu->X = 0x04;
     bus->ram[0x040D] = 0x81;
     bus->ram[0x040E] = 0x20;
     bus->ram[0x0024] = 0x00;
-    bus->ram[0x0025] = 0x80; // pointer to 0x8000
+    bus->ram[0x0025] = 0x10; // pointer to 0x8000
     opSTA_indX(cpu, bus);
-    print_store_result("STA (ind,X)", bus->ram[0x8000], 0xAA, 0x8000);
+    print_store_result("STA (ind,X)", bus->ram[0x1000], 0xAA, 0x1000);
 
     // STA (indirect),Y (0x91)
     cpu->Y = 0x03;
     bus->ram[0x040F] = 0x91;
     bus->ram[0x0410] = 0x30;
     bus->ram[0x0030] = 0x00;
-    bus->ram[0x0031] = 0x90; // pointer to 0x9000
+    bus->ram[0x0031] = 0x21; // pointer to 0x9000
     opSTA_indY(cpu, bus);
-    print_store_result("STA (ind),Y", bus->ram[0x9003], 0xAA, 0x9003);
+    print_store_result("STA (ind),Y", bus->ram[0x2103], 0xAA, 0x2103);
 
     free(bus);
     free(cpu);
