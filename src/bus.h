@@ -32,6 +32,7 @@
 #define IRQBRK_VECTOR_ADDR 0xFFFE
 
 
+
 typedef struct {
    Byte input_buffer;
    bool input_ready;
@@ -44,13 +45,29 @@ typedef struct {
 } Bus;
 
 
+
+
+void pollAciaInput(Bus *bus);
+
+void aciaWriteData(Acia *acia, Byte value);
+Byte aciaReadData(Acia *acia);
+Byte aciaReadStatus(Acia *acia);
+
+
+
 int dumpRom(Bus *mem, char *filename);
 int dumpRam(Bus *mem, char *filename);
 int loadRom(Bus *bus, const char *filename, Addr offset);
+
+
+
 void busWrite(Bus *bus, Addr addr, Byte value);
 Byte busRead(Bus *bus, Addr addr);
-void pollAciaInput(Bus *bus);
+
 
 Bus* initBus(void);
+
+
+
 
 #endif // BUS_H

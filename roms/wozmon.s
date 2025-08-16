@@ -1,4 +1,4 @@
-  ;.org $8000
+  .org $8000
   .org $ff00
 
 XAML  = $24                            ; Last "opened" location Low

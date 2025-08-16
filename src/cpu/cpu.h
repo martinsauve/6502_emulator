@@ -6,12 +6,10 @@
 #include "cpu_load_store_ops.h"
 #include "cpu_branch_ops.h"
 #include "cpu_flags_ops.h"
+#include "cpu_math_ops.h"
 
 #ifndef CPU_H
 #define CPU_H
-
-
-void opINX(Cpu*, Bus*);
 
 void opJMP_abs(Cpu*, Bus*);
 void opJMP_ind(Cpu*, Bus*);

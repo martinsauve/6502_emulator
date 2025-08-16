@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <stdint.h>
@@ -45,15 +47,43 @@ void restoreInputMode() {
 int main(int argc, char *argv[]) {
 
 
-   char *rom_path;
-   if (argc == 1) { // no args
-      //rom_path = "roms/wozmon.bin";
-      rom_path = "roms/jump.bin";
-   } else {
-      rom_path = argv[1];
+   char *rom_path = NULL;
+   char *snapshot_path = NULL;
+
+   static struct option long_options[] = {
+      {"rom",        required_argument, 0, 'r'},
+      {"snapshot",   required_argument, 0, 's'},
+      {"help",       no_argument,       0, 'h'},
+      {0,            0,                 0,  0 }
+   };
+
+   int opt;
+   int option_index = 0;
+   while ((opt = getopt_long( argc, argv, "r:s:h", long_options, &option_index)) != -1) {
+      switch (opt) {
+         case 'r':
+            rom_path = optarg;
+            break;
+         case 's':
+            snapshot_path = optarg;
+            break;
+         case 'h':
+            printf("Usage: %s [--rom <path>] [--snapshot <path>]\n", argv[0]);
+            exit(0);
+            break;
+         default:
+            printf("Unknown option. Try --help.\n");
+            exit(1);
+
+      }
+
    }
 
-   // If DEBUG is defined, run tests; otherwise, run the CPU simulation
+   if (!rom_path && !snapshot_path) {
+      printf("No ROM or snapshot provided! attempting to load default ROM\n");
+      rom_path = "roms/wozmon.bin";
+   }
+
 //#define DEBUG
 
 #ifdef DEBUG
@@ -64,10 +94,21 @@ int main(int argc, char *argv[]) {
    Bus *bus = initBus();
    Opcodes opcode_table[256];
    initOpcodeTable(opcode_table, cpu->type);
-   //loadRom(bus, rom_path, 0xFF00);
-   //cpuReset(cpu, bus);
-   //saveSnapshot(cpu, bus, "jump.snap");
-   loadSnapshot("jump.snap",cpu, bus);
+
+   if (snapshot_path) {
+      if(loadSnapshot(snapshot_path, cpu, bus) != 0) {
+         printf("Failed to load snapshot from %s\n", snapshot_path);
+         exit(1);
+      }
+   } else if (rom_path) {
+      if (loadRom(bus, rom_path, ROM_START) < 0){
+         printf("Failed to load rom from %s\n", rom_path);
+         exit(1);
+      }
+      cpuReset(cpu, bus);
+   }
+
+
    bool shouldStep = true;
    enableNonBlockingInput();
    while (shouldStep){

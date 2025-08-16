@@ -5,52 +5,6 @@
 #include <stdlib.h>
 #include "bus.h"
 
-Byte aciaReadData(Acia *acia) {
-   if (acia->input_ready) {
-      acia->input_ready = false;
-      char value = acia->input_buffer;
-      switch (value) {
-         case '\n':  // CR
-            return 0x0D;
-         case '\r':
-            return 0x0D;
-         default:
-            return value;
-      }
-   } else {
-      fprintf(stderr, "Error: ACIA read attempted with no data available\n");
-      return 0; // or some error code
-   }
-
-}
-
-Byte aciaReadStatus(Acia *acia) {
-   // Bit # (0x08) set = input ready
-   return acia->input_ready ? 0x08 : 0x00;
-}
-
-void aciaWriteData(Acia *acia, Byte value) {
-   switch (value) {
-      case 0x0D:
-         putchar('\n');
-         break;
-      default:
-         putchar(value);
-         break;
-   }
-   fflush(stdout);
-}
-
-void pollAciaInput(Bus *bus) {
-   if (!bus->acia.input_ready) {
-      int ch = getchar();
-      if (ch != EOF) {
-         bus->acia.input_buffer = (Byte)ch;
-         bus->acia.input_ready = true;
-      }
-   }
-}
-
 
 int dumpRom(Bus *bus, char *filename) {
    FILE *fp;
@@ -84,20 +38,14 @@ int dumpRam(Bus *bus, char *filename) {
 int loadRom(Bus *bus, const char *filename, Addr offset) {
    printf("Loading ROM from '%s' at offset 0x%04x\n", filename, offset);
    if ( offset < ROM_START ){
-      fprintf( //NOLINT
+      fprintf(
             stderr,
             "offset 0x%04x is incorrect, ROM starts at 0x%04x",
             offset, ROM_START);
+      return -1;
    }
 
    int offset_in_rom = offset - ROM_START;
-//   if (offset > ROM_END){
-//      fprintf( //NOLINT
-//            stderr,
-//            "offset 0x%04x is incorrect, ROM ends at 0x%04x",
-//            offset, ROM_END);
-//            // unreachable due to size of type Addr !!
-//   }
 
    size_t max_size = ROM_SIZE - offset_in_rom;
    FILE *f = fopen(filename, "rb");
@@ -110,7 +58,7 @@ int loadRom(Bus *bus, const char *filename, Addr offset) {
    int extra = fgetc(f);
    fclose(f);
    if (extra != EOF) {
-      fprintf( //NOLINT
+      fprintf(
             stderr,
             "Error: Input file '%s' is larger than %zu bytes, cannot load at offset 0x%04x (64K bus overflow)\n",
             filename, max_size, offset);
@@ -126,12 +74,10 @@ void busWrite(Bus *bus, Addr addr, Byte value) {
       bus->ram[addr - RAM_START] = value;
    } else if (addr >= ROM_START && addr <= ROM_END){
       fprintf(stderr, "Error: trying to write to ROM (addr 0x%04x is readonly)\n", addr);
-      abort(); // CRASH FOR NOW
    } else if (addr == ACIA_DATA) { // trap for printing
       aciaWriteData(&bus->acia, value);
    } else {
       fprintf(stderr, "Error: (write) addr 0x%04x currently unmapped\n", addr);
-      abort();
    }
 }
 
@@ -156,8 +102,8 @@ Byte busRead(Bus *bus, Addr addr) {
 Bus* initBus(void) {
    Bus *bus = NULL;
    bus = malloc(sizeof *bus);
-   memset(bus->ram, 0, RAM_SIZE);           //NOLINT
-   memset(bus->rom, 0, ROM_SIZE);           //NOLINT
+   memset(bus->ram, 0, RAM_SIZE);
+   memset(bus->rom, 0, ROM_SIZE);
    //memset(bus->MAP.ZP, 'Z', sizeof(bus->MAP.ZP));         //NOLINT
    //memset(bus->MAP.STACK, 'S', sizeof(bus->MAP.STACK));   //NOLINT
    //memset(bus->MAP.IRQBRK, 'B', sizeof(bus->MAP.IRQBRK)); //NOLINT

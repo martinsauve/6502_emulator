@@ -16,7 +16,10 @@ static void writeChunk(FILE *f, const char *id, const void *data, uint32_t size)
 
 int saveSnapshot(const Cpu *cpu, const Bus *bus, const char *filename) {
    FILE *f = fopen(filename, "wb");
-   if (!f) return -1;
+   if (!f) {
+      perror("Failed to open file");
+      return -1;
+   }
 
    // write header
    fwrite(SNAP_FILE_FORMAT_HEADER, 1, 4, f);
@@ -37,7 +40,10 @@ int saveSnapshot(const Cpu *cpu, const Bus *bus, const char *filename) {
 
 int loadSnapshot(const char *filename, Cpu *cpu, Bus *bus) {
    FILE *f = fopen(filename, "rb");
-   if (!f) return -1;
+   if (!f) {
+      perror("Failed to open file");
+      return -1;
+   }
 
    // READ HEADER
    char header[4];
@@ -45,6 +51,7 @@ int loadSnapshot(const char *filename, Cpu *cpu, Bus *bus) {
    if (memcmp(header, SNAP_FILE_FORMAT_HEADER, 4) != 0) {
       // if different file format
       fclose(f);
+      fprintf(stderr, "The provided file is not a valid snapshot!\n");
       return -2; // not a valid snapshot
    }
 
@@ -54,6 +61,7 @@ int loadSnapshot(const char *filename, Cpu *cpu, Bus *bus) {
    if (memcmp(&version, &expected_version, 4) != 0) {
       // if different file version
       fclose(f);
+      fprintf(stderr, "This snapshot is incompatible with this version of the emulator\n");
       return -3; // version doesnt match
    }
 
@@ -67,13 +75,25 @@ int loadSnapshot(const char *filename, Cpu *cpu, Bus *bus) {
 
       if (memcmp(chunk_id, "CPU ", 4) == 0) {
          // load cpu struct
-         if ( sizeof(Cpu) != chunk_size ) return -4; //mismatched chunk size!
+         if ( sizeof(Cpu) != chunk_size ) {
+            fclose(f);
+            fprintf(stderr, "Mismatched chunk size in the provided file !\n");
+            return -4; //mismatched chunk size!
+            }
          fread(cpu, 1, sizeof(Cpu), f);
       } else if (memcmp(chunk_id, "RAM ", 4) == 0){
-         if ( RAM_SIZE != chunk_size ) return -4;
+         if ( RAM_SIZE != chunk_size ) {
+            fclose(f);
+            fprintf(stderr, "Mismatched chunk size in the provided file !\n");
+            return -4;
+         }
          fread(bus->ram, 1, chunk_size, f);
       } else if (memcmp(chunk_id, "ROM ", 4) == 0){
-         if ( ROM_SIZE != chunk_size ) return -4;
+         if ( ROM_SIZE != chunk_size ){
+            fclose(f);
+            fprintf(stderr, "Mismatched chunk size in the provided file !\n");
+            return -4;
+         }
          fread(bus->rom, 1, chunk_size, f);
       } else {
          // unknown chunk: skip
