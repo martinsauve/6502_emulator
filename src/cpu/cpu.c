@@ -32,6 +32,23 @@ Cpu* initCpu(CpuType type) {
 
 }
 
+void cpuReset(Cpu *cpu, Bus *bus) {
+   Byte lo = busRead(bus, RESET_VECTOR_ADDR);
+   Byte hi  = busRead(bus, RESET_VECTOR_ADDR + 1);
+   cpu->PC = ((Addr)hi << 8) | lo;
+   cpu->A = 0x00;
+   cpu->X = 0x00;
+   cpu->Y = 0x00;
+   cpu->I = 1;
+   cpu->D = 0;
+   cpu->B = 0;
+   cpu->N = 0;
+   cpu->V = 0;
+   cpu->Z = 0;
+   cpu->C = 0;
+   cpu->SP = 0xFD;
+}
+
 void opUnknown(Cpu *cpu, Bus *bus){
    printf( "Unrecognized opcode 0x%02x at 0x%04x\n", busRead(bus, cpu->PC), cpu->PC );
    printf("Please make sure you are using the correct CPU type.\n");
@@ -294,12 +311,21 @@ void dumpCpu(Cpu *cpu) {
    printf(" └────┴────┴────┴──────┴───┴───┴───┴───┴───┴───┴───┘\n");
 }
 
-void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
+Cycles step(Cpu *cpu, Bus *bus, Opcodes *table){
    pollAciaInput(bus);
    Byte op = busRead(bus, cpu->PC);
    table[op].handler(cpu, bus);
-   //sleep_ms(table[op].cycles / freq);
-   // TODO : ACIA handling
+   return table[op].cycles;
+}
+
+void step_batch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
+   Cycles total_cycles = 0;
+   pollAciaInput(bus);
+   for (int i = 0; i< batch_size; ++i) {
+      total_cycles += step(cpu, bus, table);
+
+   }
+   sleep_ms((int)((total_cycles / freq) * 1000));
 }
 
 
@@ -409,7 +435,7 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
    opcode_table[0xC9].handler = opCMP_imm; opcode_table[0xC9].cycles = 2;
    opcode_table[0xC5].handler = opCMP_zp;  opcode_table[0xC5].cycles = 2;
    opcode_table[0xC0].handler = opCPY_imm; opcode_table[0xC0].cycles = 2;
-   opcode_table[0xC4].handler = opCPY_imm; opcode_table[0xC4].cycles = 3;
+   opcode_table[0xC4].handler = opCPY_zp;  opcode_table[0xC4].cycles = 3;
    opcode_table[0x29].handler = opAND_imm; opcode_table[0x29].cycles = 2;
    opcode_table[0x24].handler = opBIT_zp;  opcode_table[0x29].cycles = 3;
    opcode_table[0x49].handler = opEOR_imm; opcode_table[0x49].cycles = 2;
@@ -431,9 +457,9 @@ void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table){
 
    } else if (type == CPU_65C02) { // 65C02 fixed JMP behavior and other 65C02 instructions
 
-      opcode_table[0x6C].handler = opJMP_ind_fixed;  opcode_table[0x6C].cycles = 5;
-      opcode_table[0x3A].handler = opDEC_A;    opcode_table[0x3A].cycles = 2;
-      opcode_table[0x1A].handler = opINC_A;    opcode_table[0x1A].cycles = 2;
+      opcode_table[0x6C].handler = opJMP_ind_fixed;   opcode_table[0x6C].cycles = 5;
+      opcode_table[0x3A].handler = opDEC_A;           opcode_table[0x3A].cycles = 2;
+      opcode_table[0x1A].handler = opINC_A;           opcode_table[0x1A].cycles = 2;
 
    }
 

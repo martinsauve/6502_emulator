@@ -34,8 +34,12 @@ typedef struct {
    uint8_t cycles;
 } Opcodes;
 
+typedef uint32_t Cycles;
 
 Cpu* initCpu(CpuType type);
+void cpuReset(Cpu *cpu, Bus *bus);
+
+
 void dumpCpu(Cpu *cpu);
 
 void sleep_ms(int milliseconds);
@@ -43,7 +47,9 @@ void sleep_ms(int milliseconds);
 
 void opUnknown(Cpu*, Bus*);
 void opNOP(Cpu*, Bus*);
-void step(Cpu *cpu, Bus *bus, float freq, Opcodes *table);
+Cycles step(Cpu *cpu, Bus *bus, Opcodes *table);
+void step_batch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq);
+
 void initOpcodeTable(Opcodes[256], CpuType);
 
 Addr readAddr(Cpu*, Bus*);

@@ -7,6 +7,7 @@
 #include "6502_types.h"
 #include "bus.h"
 #include "tests/tests_cpu.h"
+#include "snapshot.h"
 
 void runTests() {
    //test_jmp_indirect_wraparound();
@@ -46,8 +47,8 @@ int main(int argc, char *argv[]) {
 
    char *rom_path;
    if (argc == 1) { // no args
-      rom_path = "roms/wozmon.bin";
-      //rom_path = "roms/jump.bin";
+      //rom_path = "roms/wozmon.bin";
+      rom_path = "roms/jump.bin";
    } else {
       rom_path = argv[1];
    }
@@ -61,14 +62,16 @@ int main(int argc, char *argv[]) {
 
    Cpu *cpu = initCpu(CPU_65C02);
    Bus *bus = initBus();
-   loadRom(bus, rom_path, 0xFF00);
    Opcodes opcode_table[256];
    initOpcodeTable(opcode_table, cpu->type);
-   cpu->PC = 0xFF00;
+   //loadRom(bus, rom_path, 0xFF00);
+   //cpuReset(cpu, bus);
+   //saveSnapshot(cpu, bus, "jump.snap");
+   loadSnapshot("jump.snap",cpu, bus);
    bool shouldStep = true;
    enableNonBlockingInput();
    while (shouldStep){
-      step(cpu, bus, 1000, opcode_table);
+      step_batch(cpu, bus, opcode_table, 10000, 1000000);
       //dumpCpu(cpu);
    }
    restoreInputMode();

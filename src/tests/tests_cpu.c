@@ -415,7 +415,7 @@ void test_jmp_indirect_wraparound() {
     bus_6502->ram[0x0200] = 0x12;
 
     cpu_6502->PC = 0x1000;
-    step(cpu_6502, bus_6502, 1, opcode_table_6502);
+    step(cpu_6502, bus_6502, opcode_table_6502);
 
     // Expect PC = 0x1234 (buggy wrap!)
     assert(cpu_6502->PC == 0x1234);
@@ -439,7 +439,7 @@ void test_jmp_indirect_wraparound() {
     bus_65c02->ram[0x0300] = 0x12;
 
     cpu_65c02->PC = 0x1000;
-    step(cpu_65c02, bus_65c02, 1, opcode_table_65c02);
+    step(cpu_65c02, bus_65c02, opcode_table_65c02);
 
     // Expect PC = 0x1234 (proper fetch!)
     assert(cpu_65c02->PC == 0x1234);

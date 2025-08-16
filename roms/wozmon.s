@@ -20,8 +20,12 @@ ACIA_CTRL   = $5003
 RESET:
                 LDA     #$1F           ; 8-N-1, 19200 baud.
                 ;STA     ACIA_CTRL
+                NOP
+                NOP
                 LDA     #$0B           ; No parity, no echo, no interrupts.
                 ;STA     ACIA_CMD
+                NOP
+                NOP
                 LDA     #$1B           ; Begin with escape.
 
 NOTCR:

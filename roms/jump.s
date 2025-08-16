@@ -1,4 +1,4 @@
-      .org $FF00
+   .org $FF00
       LDX #0
    LOOP:
       LDA MESSAGE,X
@@ -15,3 +15,9 @@
 
    MESSAGE:
       .text "Hello, World!\n"
+
+  .org $FFFA
+
+                .word   $0F00          ; NMI vector
+                .word   $FF00          ; RESET vector
+                .word   $0000          ; IRQ vector
