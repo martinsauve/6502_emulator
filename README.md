@@ -1,4 +1,6 @@
-# /!\ Disclaimer
+# :warning: Disclaimer
+
+**DO NOT USE YET, PROJECT NOT FINISHED! ALL OPCODES ARENT EVEN IMPLEMENTED...**
 
 This code is *NOT* good, it is *NOT* meant to replace any other existing emulator! This was written by a solo inexperienced guy with the goal of learning C, assembler, and the inner workings of a CPU. Make of that what you will, that being said, please feel welcome to open pull requests or issues, I will be happy to discuss them with you!
 
