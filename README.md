@@ -7,15 +7,25 @@ This code is *NOT* good, it is *NOT* meant to replace any other existing emulato
 
 Yes, I know there are hundreds of 6502 emulators floating around, but this one is mine! To be honest I am not interested by retro gaming or console emulation,
 i started this project after watching [Ben Eater's](https://www.youtube.com/@BenEater) series on his 6502 based breadboard computer and being completely fascinated by it.
-What you see so far has been written in about 5 days, I have yet to finish implement the opcodes or even a correct mainloop but I feel like the base architecture is there!
-(I am writing all of this only for the git history, I doubt anyone would actually read this now...)
+What you see so far has been written in about 8 days, I have yet to finish implement the opcodes or even a correct mainloop but I feel like the base architecture is there!
 
 
 # How it works
 
-It doesn't, that's the beauty of it!
-No, seriously, you can at the moment provide a bin file as an argument with `org. 0x0800`, it will be loaded in memeory and executed from the firt byte.
+## Build
 
+Compile the project with the included Makefile. The default target will build the executable, the included ROMS, and drop you straight into Wozmon.
+
+## Usage
+
+You can load a ROM starting at `0x8000` (32K of ROM), that should set the reset vector `0xFFFC` to the address of the code.
+`./6502 --rom <romfile path>`
+
+This emulator supports a very simple form of I/O, mapping terminal stdin/stdout to `0x5000`, with an input ready flag at `0x5001`.
+
+This emulator also supports snapshots, using a custom binary format loosely based on the RIFF format. You at the moment can load a snapshot using the `--snap <snapshot file path>` flag on the command line. Taking snapshots is implemented but not yet in the interface.
+
+If no ROM of snapshot is provided, the emulator will attempt to run WozMon if it can find it in roms/wozmon.bin.
 
 # Resources and Acknowledgements
 
@@ -28,3 +38,5 @@ Without those resources, this project would not have been possible. They are lis
 - [vasm (Dr. Volker Barthelmann's Compiler)](http://www.compilers.de/vasm.html)
 
 - [wozmon.s](https://gist.github.com/beneater/8136c8b7f2fd95ccdd4562a498758217)
+
+- [RIFF binary file format](https://fr.wikipedia.org/wiki/Resource_Interchange_File_Format)

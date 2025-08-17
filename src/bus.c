@@ -104,8 +104,5 @@ Bus* initBus(void) {
    bus = malloc(sizeof *bus);
    memset(bus->ram, 0, RAM_SIZE);
    memset(bus->rom, 0, ROM_SIZE);
-   //memset(bus->MAP.ZP, 'Z', sizeof(bus->MAP.ZP));         //NOLINT
-   //memset(bus->MAP.STACK, 'S', sizeof(bus->MAP.STACK));   //NOLINT
-   //memset(bus->MAP.IRQBRK, 'B', sizeof(bus->MAP.IRQBRK)); //NOLINT
    return bus;
 }
