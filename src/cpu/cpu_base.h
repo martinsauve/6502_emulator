@@ -11,7 +11,7 @@ typedef enum {
    CPU_65C02,
 } CpuType;
 
-typedef struct {
+typedef struct Cpu {
    Addr  PC; // Program Counter
    Byte  SP; // Stack Pointer
    Byte  A;  // Accumulator

@@ -47,7 +47,10 @@ typedef struct {
 
 
 
-void pollAciaInput(Bus *bus);
+#ifndef CPU_H
+typedef struct Cpu Cpu;
+#endif
+void pollAciaInput(Bus *bus, Cpu *cpu);
 
 void aciaWriteData(Acia *acia, Byte value);
 Byte aciaReadData(Acia *acia);

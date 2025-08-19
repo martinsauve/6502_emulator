@@ -123,7 +123,7 @@ void dumpCpu(Cpu *cpu) {
 }
 
 Cycles step(Cpu *cpu, Bus *bus, Opcodes *table){
-   pollAciaInput(bus);
+   pollAciaInput(bus, cpu);
    Byte op = busRead(bus, cpu->PC);
    table[op].handler(cpu, bus);
    return table[op].cycles;
@@ -131,7 +131,7 @@ Cycles step(Cpu *cpu, Bus *bus, Opcodes *table){
 
 void step_batch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
    Cycles total_cycles = 0;
-   pollAciaInput(bus);
+   pollAciaInput(bus, cpu);
    for (int i = 0; i< batch_size; ++i) {
       total_cycles += step(cpu, bus, table);
 

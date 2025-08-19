@@ -103,5 +103,6 @@ int loadSnapshot(const char *filename, Cpu *cpu, Bus *bus) {
    }
 
    fclose(f);
+   printf("Snapshot loaded from \'%s\'\n", filename);
    return 0;
 }
