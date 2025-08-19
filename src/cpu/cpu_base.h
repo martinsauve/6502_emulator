@@ -1,10 +1,13 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "../bus.h"
 #include "../6502_types.h"
 
 #ifndef CPU_BASE_H
 #define CPU_BASE_H
+
+#ifndef BUS_H
+typedef struct Bus Bus;
+#endif // BUS_H
 
 typedef enum {
    CPU_6502,
@@ -34,10 +37,11 @@ typedef struct {
    uint8_t cycles;
 } Opcodes;
 
-typedef uint32_t Cycles;
+
+void cpuReset(Cpu *cpu, Bus *bus);
 
 Cpu* initCpu(CpuType type);
-void cpuReset(Cpu *cpu, Bus *bus);
+void freeCpu(Cpu *cpu);
 
 
 void dumpCpu(Cpu *cpu);
@@ -48,7 +52,7 @@ void sleep_ms(int milliseconds);
 void opUnknown(Cpu*, Bus*);
 void opNOP(Cpu*, Bus*);
 Cycles step(Cpu *cpu, Bus *bus, Opcodes *table);
-void step_batch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq);
+void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq);
 
 void initOpcodeTable(Opcodes[256], CpuType);
 

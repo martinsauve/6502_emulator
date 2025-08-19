@@ -112,13 +112,13 @@ int main(int argc, char *argv[]) {
    bool shouldStep = true;
    enableNonBlockingInput();
    while (shouldStep){
-      step_batch(cpu, bus, opcode_table, 10000, 1000000);
+      stepBatch(cpu, bus, opcode_table, 10000, 1000000);
       //dumpCpu(cpu);
    }
    restoreInputMode();
 
-   free(cpu);
-   free(bus);
+   freeCpu(cpu);
+   freeBus(bus);
 #endif
 
    return 0;

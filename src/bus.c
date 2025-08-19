@@ -75,7 +75,7 @@ void busWrite(Bus *bus, Addr addr, Byte value) {
    } else if (addr >= ROM_START && addr <= ROM_END){
       fprintf(stderr, "Error: trying to write to ROM (addr 0x%04x is readonly)\n", addr);
    } else if (addr == ACIA_DATA) { // trap for printing
-      aciaWriteData(&bus->acia, value);
+      aciaWriteData(bus->acia, value);
    } else {
       fprintf(stderr, "Error: (write) addr 0x%04x currently unmapped\n", addr);
    }
@@ -89,9 +89,9 @@ Byte busRead(Bus *bus, Addr addr) {
    else if (addr >= ROM_START && addr <= ROM_END ) {
       return bus->rom[addr - ROM_START];
    } else if (addr == ACIA_DATA) {
-      return aciaReadData(&bus->acia);
+      return aciaReadData(bus->acia);
    } else if (addr == ACIA_STATUS) {
-      return aciaReadStatus(&bus->acia);
+      return aciaReadStatus(bus->acia);
    } else {
       fprintf(stderr, "Error: (read) addr 0x%04x currently unmapped\n", addr);
       return -1;
@@ -104,5 +104,13 @@ Bus* initBus(void) {
    bus = malloc(sizeof *bus);
    memset(bus->ram, 0, RAM_SIZE);
    memset(bus->rom, 0, ROM_SIZE);
+   bus->acia = malloc(sizeof(Acia)); // MEMORY LEAK!!
+   memset(bus->acia, 0, sizeof(Acia));
    return bus;
+}
+
+void freeBus(Bus *bus) {
+   if (!bus) return;
+   free(bus->acia);
+   free(bus);
 }

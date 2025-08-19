@@ -5,6 +5,7 @@
 #include "cpu.h"
 #include "../bus.h"
 #include "../6502_types.h"
+#include "../acia.h"
 
 
 
@@ -30,6 +31,11 @@ Cpu* initCpu(CpuType type) {
    cpu->type = type;
    return cpu;
 
+}
+
+void freeCpu(Cpu *cpu) {
+   if (!cpu) return;
+   free(cpu);
 }
 
 void cpuReset(Cpu *cpu, Bus *bus) {
@@ -123,13 +129,12 @@ void dumpCpu(Cpu *cpu) {
 }
 
 Cycles step(Cpu *cpu, Bus *bus, Opcodes *table){
-   pollAciaInput(bus, cpu);
    Byte op = busRead(bus, cpu->PC);
    table[op].handler(cpu, bus);
    return table[op].cycles;
 }
 
-void step_batch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
+void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
    Cycles total_cycles = 0;
    pollAciaInput(bus, cpu);
    for (int i = 0; i< batch_size; ++i) {

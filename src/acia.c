@@ -1,3 +1,4 @@
+#include "acia.h"
 #include "bus.h"
 #include "cpu/cpu_base.h"
 #include "snapshot.h"
@@ -41,7 +42,7 @@ void aciaWriteData(Acia *acia, Byte value) {
 }
 
 void pollAciaInput(Bus *bus, Cpu *cpu) {
-   if (!bus->acia.input_ready) {
+   if (!bus->acia->input_ready) {
       int ch = getchar();
       if (ch == 's') {// s, save snapshot
          saveSnapshot(cpu, bus, "ctrlS.snap");
@@ -49,8 +50,8 @@ void pollAciaInput(Bus *bus, Cpu *cpu) {
          return;
       }
       if (ch != EOF) {
-         bus->acia.input_buffer = (Byte)ch;
-         bus->acia.input_ready = true;
+         bus->acia->input_buffer = (Byte)ch;
+         bus->acia->input_ready = true;
       }
    }
 }

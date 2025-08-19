@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "6502_types.h"
+#include "acia.h"
 
 #ifndef BUS_H
 #define BUS_H
@@ -14,10 +15,6 @@
 #define ROM_START   0x8000
 #define ROM_END     (ROM_START + ROM_SIZE - 1)
 
-#define ACIA_DATA    0x5000
-#define ACIA_STATUS  0x5001
-#define ACIA_CMD     0x5002
-#define ACIA_CTRL    0x5003
 
 #define STACK_SIZE   0x0100 // 256 bytes of stack
 #define STACK_START  0x0100
@@ -33,28 +30,20 @@
 
 
 
-typedef struct {
-   Byte input_buffer;
-   bool input_ready;
-} Acia;
 
-typedef struct {
+#ifndef ACIA_H
+typedef struct Acia Acia;
+#endif
+
+typedef struct Bus {
    Byte ram[RAM_SIZE];
    Byte rom[ROM_SIZE];
-   Acia acia;
+   Acia *acia;
 } Bus;
 
 
 
 
-#ifndef CPU_H
-typedef struct Cpu Cpu;
-#endif
-void pollAciaInput(Bus *bus, Cpu *cpu);
-
-void aciaWriteData(Acia *acia, Byte value);
-Byte aciaReadData(Acia *acia);
-Byte aciaReadStatus(Acia *acia);
 
 
 
@@ -69,6 +58,7 @@ Byte busRead(Bus *bus, Addr addr);
 
 
 Bus* initBus(void);
+void freeBus(Bus *bus);
 
 
 
