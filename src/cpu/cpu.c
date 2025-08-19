@@ -68,42 +68,6 @@ void opNOP(Cpu *cpu, Bus *bus) {
    cpu->PC += 1;
 }
 
-void opJMP_abs(Cpu *cpu, Bus *bus) { // only absolute for the hello world
-   cpu->PC = readAddr(cpu, bus);
-}
-
-void opJMP_ind_buggy(Cpu *cpu, Bus *bus) {
-    Addr ptr = (Addr)busRead(bus, cpu->PC + 1) | ((Byte)busRead(bus, cpu->PC + 2) << 8);
-    Byte lo = busRead(bus, ptr);
-    // Emulate 6502 bug: if low byte is $FF, high byte wraps around
-    Byte hi = busRead(bus, (ptr & 0xFF00) | ((ptr + 1) & 0x00FF));
-    cpu->PC = (Addr)lo | ((Addr)hi << 8);
-}
-
-void opJMP_ind_fixed(Cpu *cpu, Bus *bus) {
-    dumpCpu(cpu);
-    printf("indirect jump!!");
-    Addr ptr = (Addr)busRead(bus, cpu->PC + 1) | ((Byte)busRead(bus, cpu->PC + 2) << 8);
-    Byte lo = busRead(bus, ptr);
-    Byte hi = busRead(bus, (ptr + 1) & 0xFFFF); // Correctly read the next byte
-    cpu->PC = (Addr)lo | ((Addr)hi << 8);
-}
-
-void opJSR(Cpu *cpu, Bus *bus) {
-   Addr target = busRead(bus, cpu->PC +1) | (busRead(bus, cpu->PC + 2) << 8);
-   Addr ret = cpu->PC + 2;
-   pushStack(cpu, bus, (ret >> 8) & 0xFF); //high byte
-   pushStack(cpu, bus, ret & 0xFF); //high byte
-   cpu->PC = target;
-}
-
-void opRTS(Cpu *cpu, Bus *bus) {
-   Byte lo = pullStack(cpu, bus);
-   Byte hi = pullStack(cpu, bus);
-   Addr ret = ((Addr)hi<<8 | lo);
-   cpu->PC = ret + 1;
-}
-
 void opPHA(Cpu *cpu, Bus *bus) {
    pushStack(cpu, bus, cpu->A);
    cpu->PC += 1;

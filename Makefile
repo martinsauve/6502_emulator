@@ -3,7 +3,8 @@ ROMS := ./roms
 EXECUTABLE_NAME := 6502
 
 CC := gcc
-CFLAGS := -Wall -Wextra -ggdb
+DEBUG_CFLAGS := -Wall -Wextra -ggdb
+RELEASE_CFLAGS := -Wall -Wextra -O3 -flto
 
 VASM := vasm6502_oldstyle
 VASMFLAGS := -Fbin -dotdir -esc -c02
@@ -14,6 +15,15 @@ DEPENDS := $(patsubst %.c,%.d, $(SOURCES))
 
 ROMS_SOURCES := $(wildcard $(ROMS)/*.s) $(wildcard $(ROMS)/*/*.s)
 ROMS_BIN := $(ROMS_SOURCES:.s=.bin)
+
+
+
+RELEASE ?= 0
+ifeq ($(RELEASE),1)
+CFLAGS := $(RELEASE_CFLAGS)
+else
+CFLAGS := $(DEBUG_CFLAGS)
+endif
 
 
 all: build roms run

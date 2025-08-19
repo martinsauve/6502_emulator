@@ -4,9 +4,7 @@
 #include <string.h>
 #include "cpu/cpu.h"
 #include "bus.h"
-
-#define SNAP_FILE_FORMAT_VERSION       1
-#define SNAP_FILE_FORMAT_HEADER  "SNAP" /*must be 4 bytes*/
+#include "snapshot.h"
 
 static void writeChunk(FILE *f, const char *id, const void *data, uint32_t size) {
    fwrite(id, 1, 4, f); // Write the chunk ID (4 bytes) to f

@@ -14,5 +14,11 @@ void opBPL(Cpu*, Bus*);
 void opBVC(Cpu*, Bus*);
 void opBVS(Cpu*, Bus*);
 
+void opJMP_abs(Cpu*, Bus*);
+void opJMP_ind_buggy(Cpu*, Bus*);
+void opJMP_ind_fixed(Cpu*, Bus*);
+
+void opJSR(Cpu*, Bus*);
+void opRTS(Cpu*, Bus*);
 
 #endif // CPU_BRANCH_OPS_H

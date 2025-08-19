@@ -30,6 +30,7 @@ Byte aciaReadStatus(Acia *acia) {
 }
 
 void aciaWriteData(Acia *acia, Byte value) {
+   (void)acia; // Unused parameter
    switch (value) {
       case 0x0D:
          putchar('\n');

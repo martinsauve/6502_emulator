@@ -10,13 +10,9 @@
 #ifndef CPU_H
 #define CPU_H
 
-void opJMP_abs(Cpu*, Bus*);
-void opJMP_ind(Cpu*, Bus*);
 
 void opPHA(Cpu*, Bus*);
 void opPLA(Cpu*, Bus*);
 
-void opJSR(Cpu*, Bus*);
-void opRTS(Cpu*, Bus*);
 
 #endif // CPU_H
