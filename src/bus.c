@@ -20,6 +20,7 @@ int dumpRom(Bus *bus, char *filename) {
    printf("Rom dumped to %s\n", filename);
    return 0;
 }
+
 int dumpRam(Bus *bus, char *filename) {
    FILE *fp;
    fp = fopen(filename, "wb");
@@ -70,6 +71,8 @@ int loadRom(Bus *bus, const char *filename, Addr offset) {
 }
 
 void busWrite(Bus *bus, Addr addr, Byte value) {
+   #pragma GCC diagnostic push
+   #pragma GCC diagnostic ignored "-Wtype-limits" // yes GCC, RAM_START is 0 in this case, but could be set to a different value
    if (addr >= RAM_START && addr <=RAM_END){
       bus->ram[addr - RAM_START] = value;
    } else if (addr >= ROM_START && addr <= ROM_END){
@@ -79,14 +82,17 @@ void busWrite(Bus *bus, Addr addr, Byte value) {
    } else {
       fprintf(stderr, "Error: (write) addr 0x%04x currently unmapped\n", addr);
    }
+   #pragma GCC diagnostic pop
 }
 
 Byte busRead(Bus *bus, Addr addr) {
+   #pragma GCC diagnostic push
+   #pragma GCC diagnostic ignored "-Wtype-limits" // yes GCC, RAM_START is 0 in this case, but could be set to a different value
    if (addr >= RAM_START && addr <=RAM_END)
    {
       return bus->ram[addr - RAM_START];
    }
-   else if (addr >= ROM_START && addr <= ROM_END ) {
+   else if (addr >= ROM_START && addr <= ROM_END ) { // idem for ROM_END, could be set to a lower value
       return bus->rom[addr - ROM_START];
    } else if (addr == ACIA_DATA) {
       return aciaReadData(bus->acia);
@@ -96,6 +102,7 @@ Byte busRead(Bus *bus, Addr addr) {
       fprintf(stderr, "Error: (read) addr 0x%04x currently unmapped\n", addr);
       return -1;
    }
+   #pragma GCC diagnostic pop
 }
 
 
@@ -104,7 +111,7 @@ Bus* initBus(void) {
    bus = malloc(sizeof *bus);
    memset(bus->ram, 0, RAM_SIZE);
    memset(bus->rom, 0, ROM_SIZE);
-   bus->acia = malloc(sizeof(Acia)); // MEMORY LEAK!!
+   bus->acia = malloc(sizeof(Acia)); // MEMORY LEAK!!(always deallocate with freeBus())
    memset(bus->acia, 0, sizeof(Acia));
    return bus;
 }

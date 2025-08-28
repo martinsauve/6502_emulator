@@ -17,6 +17,7 @@ Byte aciaReadData(Acia *acia) {
          default:
             return value;
       }
+      fflush(stdout);
    } else {
       fprintf(stderr, "Error: ACIA read attempted with no data available\n");
       return 0; // or some error code
@@ -30,13 +31,12 @@ Byte aciaReadStatus(Acia *acia) {
 }
 
 void aciaWriteData(Acia *acia, Byte value) {
-   (void)acia; // Unused parameter
    switch (value) {
       case 0x0D:
-         putchar('\n');
+         acia->putChar(acia, '\n');
          break;
       default:
-         putchar(value);
+         acia->putChar(acia, value);
          break;
    }
    fflush(stdout);
@@ -44,13 +44,13 @@ void aciaWriteData(Acia *acia, Byte value) {
 
 void pollAciaInput(Bus *bus, Cpu *cpu) {
    if (!bus->acia->input_ready) {
-      int ch = getchar();
+      int ch = bus->acia->getChar(bus->acia);
       if (ch == 's') {// s, save snapshot
          saveSnapshot(cpu, bus, "ctrlS.snap");
          fflush(stdout);
          return;
       }
-      if (ch != EOF) {
+      if ((ch != EOF) && (ch != '\0')) {
          bus->acia->input_buffer = (Byte)ch;
          bus->acia->input_ready = true;
       }

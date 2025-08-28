@@ -92,7 +92,6 @@ void opJMP_ind_buggy(Cpu *cpu, Bus *bus) {
 }
 
 void opJMP_ind_fixed(Cpu *cpu, Bus *bus) {
-    dumpCpu(cpu);
     Addr ptr = (Addr)busRead(bus, cpu->PC + 1) | ((Byte)busRead(bus, cpu->PC + 2) << 8);
     Byte lo = busRead(bus, ptr);
     Byte hi = busRead(bus, (ptr + 1) & 0xFFFF); // Correctly read the next byte

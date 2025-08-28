@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "rl_io.h"
 #include "6502_types.h"
 
 #ifndef ACIA_H
@@ -9,9 +10,16 @@
 #define ACIA_CMD     0x5002
 #define ACIA_CTRL    0x5003
 
+typedef struct Acia Acia;
+typedef char (*AciaGetCharFunc)(Acia *acia);
+typedef void (*AciaPutCharFunc)(Acia *acia, char c);
+
 typedef struct Acia{
    Byte input_buffer;
    bool input_ready;
+   AciaGetCharFunc getChar;
+   AciaPutCharFunc putChar;
+   RlTextBuffer rlTextBuf;
 } Acia;
 
 #ifndef CPU_H

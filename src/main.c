@@ -1,3 +1,4 @@
+#include <raylib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <getopt.h>
@@ -10,6 +11,7 @@
 #include "bus.h"
 #include "tests/tests_cpu.h"
 #include "snapshot.h"
+#include "rl_io.h"
 
 void runTests() {
    //test_jmp_indirect_wraparound();
@@ -24,42 +26,56 @@ void runTests() {
 
 
 void enableNonBlockingInput() {
-    // Set terminal to raw mode (no buffering, no echo)
-    struct termios ttystate;
-    tcgetattr(STDIN_FILENO, &ttystate);
-    ttystate.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
-    tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
+   // Set terminal to raw mode (no buffering, no echo)
+   struct termios ttystate;
+   tcgetattr(STDIN_FILENO, &ttystate);
+   ttystate.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
+   tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
 
-    // Set file descriptor to non-blocking
-    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+   // Set file descriptor to non-blocking
+   int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+   fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 }
 void restoreInputMode() {
-    struct termios ttystate;
-    tcgetattr(STDIN_FILENO, &ttystate);
-    ttystate.c_lflag |= ICANON | ECHO; // Re-enable canonical mode and echo
-    tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
+   struct termios ttystate;
+   tcgetattr(STDIN_FILENO, &ttystate);
+   ttystate.c_lflag |= ICANON | ECHO; // Re-enable canonical mode and echo
+   tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
 
-    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, flags & ~O_NONBLOCK);
+   int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+   fcntl(STDIN_FILENO, F_SETFL, flags & ~O_NONBLOCK);
 }
+
+char terminalGetChar(Acia *acia) { (void)acia; return getchar(); }
+void terminalPutChar(Acia *acia, char c) {(void)acia; putchar(c); }
+
+char rlGetChar(Acia *acia) {
+   return rlHandleInput(&acia->rlTextBuf);
+}
+void rlPutChar(Acia *acia, char c) {
+   rlPutNewChar(&acia->rlTextBuf, c);
+   }
 
 int main(int argc, char *argv[]) {
 
 
    char *rom_path = NULL;
    char *snapshot_path = NULL;
+   enum InterfaceMode { INTERFACE_TERMINAL, INTERFACE_GUI };
+   enum InterfaceMode interface_mode = INTERFACE_TERMINAL;
 
    static struct option long_options[] = {
       {"rom",        required_argument, 0, 'r'},
       {"snapshot",   required_argument, 0, 's'},
+      {"gui",        no_argument,       0, 'g'},
       {"help",       no_argument,       0, 'h'},
       {0,            0,                 0,  0 }
    };
 
    int opt;
    int option_index = 0;
-   while ((opt = getopt_long( argc, argv, "r:s:h", long_options, &option_index)) != -1) {
+
+   while ((opt = getopt_long( argc, argv, "r:s:gh", long_options, &option_index)) != -1) {
       switch (opt) {
          case 'r':
             rom_path = optarg;
@@ -67,16 +83,17 @@ int main(int argc, char *argv[]) {
          case 's':
             snapshot_path = optarg;
             break;
+         case 'g':
+            interface_mode = INTERFACE_GUI;
+            break;
          case 'h':
-            printf("Usage: %s [--rom <path>] [--snapshot <path>]\n", argv[0]);
+            printf("Usage: %s [--rom <path>] [--snapshot <path>] [--gui]\n", argv[0]);
             exit(0);
             break;
          default:
             printf("Unknown option. Try --help.\n");
             exit(1);
-
       }
-
    }
 
    if (!rom_path && !snapshot_path) {
@@ -108,14 +125,38 @@ int main(int argc, char *argv[]) {
       cpuReset(cpu, bus);
    }
 
+   if ( interface_mode == INTERFACE_GUI ) {
 
-   bool shouldStep = true;
-   enableNonBlockingInput();
-   while (shouldStep){
-      stepBatch(cpu, bus, opcode_table, 10000, 1000000);
-      //dumpCpu(cpu);
+      rlClearTextBuffer(&bus->acia->rlTextBuf);
+      bus->acia->getChar = rlGetChar;
+      bus->acia->putChar = rlPutChar;
+      InitWindow(800, 600, "6502 Emulator");
+
+      while (!WindowShouldClose()) {
+         enableNonBlockingInput();
+         stepBatch(cpu, bus, opcode_table, 10000, 1000000);
+         BeginDrawing();
+         rlDrawTextBuffer(&bus->acia->rlTextBuf);
+         DrawText(TextFormat("PC: 0x%04X", cpu->PC), 20, 20,  10, WHITE);
+         DrawText(TextFormat("A:  0x%02X", cpu->A),  20, 50,  10, WHITE);
+         DrawText(TextFormat("X:  0x%02X", cpu->X),  20, 80,  10, WHITE);
+         DrawText(TextFormat("Y:  0x%02X", cpu->Y),  20, 110, 10, WHITE);
+         DrawText(TextFormat("SP: 0x%02X", cpu->SP), 20, 140, 10, WHITE);
+         EndDrawing();
+      }
+
+   } else { // INTERFACE_TERMINAL
+
+      //rlTest();
+      enableNonBlockingInput();
+      bus->acia->getChar = terminalGetChar;
+      bus->acia->putChar = terminalPutChar;
+      bool shouldStep = true;
+      while (shouldStep) {
+         stepBatch(cpu, bus, opcode_table, 10000, 1000000);
+      }
+      restoreInputMode();
    }
-   restoreInputMode();
 
    freeCpu(cpu);
    freeBus(bus);
