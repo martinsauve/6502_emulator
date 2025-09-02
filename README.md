@@ -20,6 +20,8 @@ Compile the project with the included Makefile. The default target will build th
 
 ## Usage
 
+This emulator runs by default in a terminal, but can be run in a GUI window with the `--gui` flag. The GUI is very basic and displays a text terminal and the CPU state.
+
 You can load a ROM starting at `0x8000` (32K of ROM), that should set the reset vector `0xFFFC` to the address of the code.
 `./6502 --rom <romfile path>`
 

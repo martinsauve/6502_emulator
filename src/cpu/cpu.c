@@ -9,7 +9,7 @@
 
 
 
-
+// initialize a CPU structure
 Cpu* initCpu(CpuType type) {
    Cpu *cpu = NULL;
    cpu = malloc(sizeof *cpu);
@@ -33,11 +33,13 @@ Cpu* initCpu(CpuType type) {
 
 }
 
+// free a CPU structure
 void freeCpu(Cpu *cpu) {
    if (!cpu) return;
    free(cpu);
 }
 
+// reset the CPU (equivalent to pulling the reset pin on pysical CPU)
 void cpuReset(Cpu *cpu, Bus *bus) {
    Byte lo = busRead(bus, RESET_VECTOR_ADDR);
    Byte hi  = busRead(bus, RESET_VECTOR_ADDR + 1);
@@ -55,6 +57,7 @@ void cpuReset(Cpu *cpu, Bus *bus) {
    cpu->SP = 0xFD;
 }
 
+// Handle unknown opcode
 void opUnknown(Cpu *cpu, Bus *bus){
    printf( "Unrecognized opcode 0x%02x at 0x%04x\n", busRead(bus, cpu->PC), cpu->PC );
    printf("Please make sure you are using the correct CPU type.\n");
@@ -63,24 +66,14 @@ void opUnknown(Cpu *cpu, Bus *bus){
 
 }
 
+// No Operation
 void opNOP(Cpu *cpu, Bus *bus) {
    (void)bus; // Unused parameter
    cpu->PC += 1;
 }
 
-void opPHA(Cpu *cpu, Bus *bus) {
-   pushStack(cpu, bus, cpu->A);
-   cpu->PC += 1;
-}
 
-void opPLA(Cpu *cpu, Bus *bus) {
-   cpu->A = pullStack(cpu, bus);
-   setZN(cpu, cpu->A);
-   cpu->PC += 1;
-}
-
-
-
+// dump CPU state to console
 void dumpCpu(Cpu *cpu) {
    printf(" ┌──────────────┬──────┬───────────────────────────┐\n");
    printf(" │ CPU Registers│      │        CPU FLAGS          │\n");
@@ -92,12 +85,14 @@ void dumpCpu(Cpu *cpu) {
    printf(" └────┴────┴────┴──────┴───┴───┴───┴───┴───┴───┴───┘\n");
 }
 
+// Execute a single CPU operation and return the number of cycles it took
 Cycles step(Cpu *cpu, Bus *bus, Opcodes *table){
    Byte op = busRead(bus, cpu->PC);
    table[op].handler(cpu, bus);
    return table[op].cycles;
 }
 
+// Execute a batch of CPU operations and sleep to maintain the desired frequency
 void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
    Cycles total_cycles = 0;
    pollAciaInput(bus, cpu);

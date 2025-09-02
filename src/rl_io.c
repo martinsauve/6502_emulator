@@ -39,7 +39,7 @@ RlTextBuffer* rlClearTextBuffer(RlTextBuffer *buf) {
 
 
 RlTextBuffer* rlReplaceChar(RlTextBuffer *buf, char character, int line, int col) {
-   (*buf)[line-1][col-1] = character;
+   (*buf)[line][col] = character;
    return buf;
 }
 
@@ -112,7 +112,5 @@ void rlTest() {
       EndDrawing();
    }
    CloseWindow();
-#ifdef DEBUG
    write(1, (char*)buf, sizeof(buf));
-#endif
 }

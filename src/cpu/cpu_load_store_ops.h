@@ -55,4 +55,8 @@ void opSTY_abs(Cpu*, Bus*);
 
 void opTAX(Cpu*, Bus*);
 
+void opPHA(Cpu*, Bus*);
+void opPLA(Cpu*, Bus*);
+
+
 #endif // CPU_LOAD_STORE_OPS_H

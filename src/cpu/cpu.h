@@ -11,8 +11,4 @@
 #define CPU_H
 
 
-void opPHA(Cpu*, Bus*);
-void opPLA(Cpu*, Bus*);
-
-
 #endif // CPU_H

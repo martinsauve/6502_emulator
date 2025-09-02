@@ -5,7 +5,7 @@ EXECUTABLE_NAME := 6502
 
 CC := gcc
 DEBUG_CFLAGS := -Wall -Wextra -ggdb -pedantic -Werror -Wundef -fno-common
-RELEASE_CFLAGS := -Wall -Wextra -O3 -flto -static
+RELEASE_CFLAGS := -Wall -Wextra -O3 -flto
 
 RAYLIB_RELEASE_URL := https://github.com/raysan5/raylib/releases/download/5.5/raylib-5.5_linux_amd64.tar.gz
 RAYLIB_PATH := ./third_party/raylib
@@ -24,7 +24,8 @@ CFLAGS := $(DEBUG_CFLAGS)
 endif
 
 CFLAGS += -I$(RAYLIB_INCLUDE)
-LDFLAGS := $(CFLAGS) -L$(RAYLIB_LIB) -lraylib
+LDFLAGS := $(CFLAGS) -L$(RAYLIB_LIB)
+LINKDED_LIBS := -lraylib -lm -lpthread -ldl
 
 CFLAGS += -MMD -MP
 
@@ -62,10 +63,10 @@ roms: $(ROMS_BIN)
 
 
 build: raylib $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $(EXECUTABLE_NAME) $(OBJECTS)
+	$(CC) $(LDFLAGS) -o $(EXECUTABLE_NAME) $(OBJECTS) $(LINKDED_LIBS)
 
 run:
-	./$(EXECUTABLE_NAME)
+	./$(EXECUTABLE_NAME) --gui
 
 clean:
 	rm -f $(DEPENDS)

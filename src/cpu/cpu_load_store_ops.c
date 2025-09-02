@@ -1,7 +1,6 @@
 #include "cpu.h"
 #include "../bus.h"
 #include "../6502_types.h"
-#include <stdio.h>
 
 //*******************************************
 // LOAD/STORE OPERATIONS
@@ -305,5 +304,18 @@ void opTAX(Cpu *cpu, Bus *bus) {
    (void)bus;
    cpu->X = cpu->A;
    setZN(cpu, cpu->X);
+   cpu->PC += 1;
+}
+
+// push A onto stack
+void opPHA(Cpu *cpu, Bus *bus) {
+   pushStack(cpu, bus, cpu->A);
+   cpu->PC += 1;
+}
+
+// pull A from stack
+void opPLA(Cpu *cpu, Bus *bus) {
+   cpu->A = pullStack(cpu, bus);
+   setZN(cpu, cpu->A);
    cpu->PC += 1;
 }

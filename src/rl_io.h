@@ -12,4 +12,4 @@ RlTextBuffer* rlClearTextBuffer(RlTextBuffer *buf);
 void rlDrawTextBuffer(RlTextBuffer *buf);
 
 void rlTest();
-#endif
+#endif // RL_IO

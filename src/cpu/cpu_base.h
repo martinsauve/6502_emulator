@@ -5,6 +5,10 @@
 #ifndef CPU_BASE_H
 #define CPU_BASE_H
 
+
+#define CPU_FREQ         1000000
+#define CPU_BATCH_SIZE   10000
+
 #ifndef BUS_H
 typedef struct Bus Bus;
 #endif // BUS_H

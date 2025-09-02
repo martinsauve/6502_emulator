@@ -123,11 +123,11 @@ void test_lda_ops() {
     // LDA (Indirect,X) (0xA1)
     cpu->PC = 0x000F;
     cpu->X = 0x10;
-    bus->ram[0x000F] = 0xA1; // opcode
+    bus->ram[0x000f] = 0xA1; // opcode
     bus->ram[0x0010] = 0x80; // zp pointer
-    bus->ram[0x0090] = 0x00; // low byte
-    bus->ram[0x0091] = 0x40; // high byte
-    bus->ram[0x4000] = 0xCD;
+    bus->ram[0x0090] = 0xff; // low byte
+    bus->ram[0x0091] = 0x3f; // high byte
+    bus->ram[0x3fff] = 0xCD;
     opLDA_indX(cpu, bus);
     print_lda_result("LDA (ind,X)", cpu, 0xCD);
 

@@ -76,11 +76,11 @@ void busWrite(Bus *bus, Addr addr, Byte value) {
    if (addr >= RAM_START && addr <=RAM_END){
       bus->ram[addr - RAM_START] = value;
    } else if (addr >= ROM_START && addr <= ROM_END){
-      fprintf(stderr, "Error: trying to write to ROM (addr 0x%04x is readonly)\n", addr);
+      fprintf(stderr, "Error: trying to write to ROM (addr 0x%04x is readonly)\n", addr); //NOLINT
    } else if (addr == ACIA_DATA) { // trap for printing
       aciaWriteData(bus->acia, value);
    } else {
-      fprintf(stderr, "Error: (write) addr 0x%04x currently unmapped\n", addr);
+      fprintf(stderr, "Error: (write) addr 0x%04x currently unmapped\n", addr); //NOLINT
    }
    #pragma GCC diagnostic pop
 }
@@ -99,7 +99,7 @@ Byte busRead(Bus *bus, Addr addr) {
    } else if (addr == ACIA_STATUS) {
       return aciaReadStatus(bus->acia);
    } else {
-      fprintf(stderr, "Error: (read) addr 0x%04x currently unmapped\n", addr);
+      fprintf(stderr, "Error: (read) addr 0x%04x currently unmapped\n", addr); //NOLINT
       return -1;
    }
    #pragma GCC diagnostic pop
@@ -109,10 +109,10 @@ Byte busRead(Bus *bus, Addr addr) {
 Bus* initBus(void) {
    Bus *bus = NULL;
    bus = malloc(sizeof *bus);
-   memset(bus->ram, 0, RAM_SIZE);
-   memset(bus->rom, 0, ROM_SIZE);
+   memset(bus->ram, 0, RAM_SIZE); //NOLINT
+   memset(bus->rom, 0, ROM_SIZE); //NOLINT
    bus->acia = malloc(sizeof(Acia)); // MEMORY LEAK!!(always deallocate with freeBus())
-   memset(bus->acia, 0, sizeof(Acia));
+   memset(bus->acia, 0, sizeof(Acia)); //NOLINT
    return bus;
 }
 
