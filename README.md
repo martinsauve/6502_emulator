@@ -25,11 +25,11 @@ This emulator runs by default in a terminal, but can be run in a GUI window with
 You can load a ROM starting at `0x8000` (32K of ROM), that should set the reset vector `0xFFFC` to the address of the code.
 `./6502 --rom <romfile path>`
 
-This emulator supports a very simple form of I/O, mapping terminal stdin/stdout to `0x5000`, with an input ready flag at `0x5001`.
+This emulator supports a very simple form of I/O, mapping terminal stdin/stdout to `0x5000`, with an input ready flag at `0x5001`. This is loosely based on Ben Eater's 6502 breadboard computer design. Writing a byte to `0x5000` will print it to stdout, reading from `0x5000` will read a byte from stdin if available, and reading from `0x5001` will return `0x08` (7th bit set) if input is availabe, `0x00` otherwise. This is my (very crude) implemantation of ACIA.
 
-This emulator also supports snapshots, using a custom binary format loosely based on the RIFF format. You at the moment can load a snapshot using the `--snap <snapshot file path>` flag on the command line. Taking snapshots is implemented but not yet in the interface.
+This emulator also supports snapshots, using a custom binary format loosely based on the RIFF format(without `LIST`). You at the moment can load a snapshot using the `--snap <snapshot file path>` flag on the command line. Taking snapshots is implemented but not yet in the interface. The format shoud be understandable by looking at `src/snapshot.c`.
 
-If no ROM of snapshot is provided, the emulator will attempt to run WozMon if it can find it in roms/wozmon.bin.
+If no ROM of snapshot is provided, the emulator will attempt to run WozMon if it can find it in `roms/wozmon.bin`.
 
 # Resources and Acknowledgements
 
@@ -44,3 +44,5 @@ Without those resources, this project would not have been possible. They are lis
 - [wozmon.s](https://gist.github.com/beneater/8136c8b7f2fd95ccdd4562a498758217)
 
 - [RIFF binary file format](https://fr.wikipedia.org/wiki/Resource_Interchange_File_Format)
+
+Shoutout to Github Copilot as well, I used it to help me review some of the code and it was surprisingly useful! Rest assured that I did not generate any of the code with it... :)
