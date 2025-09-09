@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include "../bus.h"
 #include "../6502_types.h"
+#include <stdint.h>
 
 void opBEQ(Cpu *cpu, Bus *bus) { // branch if Z is set
    if (!cpu->Z) {
@@ -111,4 +112,59 @@ void opRTS(Cpu *cpu, Bus *bus) {
    Byte hi = pullStack(cpu, bus);
    Addr ret = ((Addr)hi<<8 | lo);
    cpu->PC = ret + 1;
+}
+
+void opRTI(Cpu *cpu, Bus *bus) {
+   handleRTI(cpu, bus);
+}
+void handleBBS(Cpu *cpu, Bus *bus, Byte mask) {
+   Byte zp_addr = busRead(bus, cpu->PC + 1);
+   Byte rel_offset = busRead(bus, cpu->PC + 2);
+   Byte zp_value = busRead(bus, zp_addr);
+
+   cpu->PC += 3;
+
+   if ((zp_value & mask) != 0) {
+      // branch if bit is clear
+      // cast to signed as offset is signed
+      cpu->PC += (int8_t)rel_offset;
+   }
+}
+
+void handleBBR(Cpu *cpu, Bus *bus, Byte mask) {
+   Byte zp_addr = busRead(bus, cpu->PC + 1);
+   Byte rel_offset = busRead(bus, cpu->PC + 2);
+   Byte zp_value = busRead(bus, zp_addr);
+
+   cpu->PC += 3;
+
+   if ((zp_value & mask) == 0) {
+      // branch if bit is clear
+      // cast to signed as offset is signed
+      cpu->PC += (int8_t)rel_offset;
+   }
+}
+void opBBS0(Cpu *cpu, Bus *bus) { handleBBS(cpu, bus, 0x01); }
+void opBBS1(Cpu *cpu, Bus *bus) { handleBBS(cpu, bus, 0x02); }
+void opBBS2(Cpu *cpu, Bus *bus) { handleBBS(cpu, bus, 0x04); }
+void opBBS3(Cpu *cpu, Bus *bus) { handleBBS(cpu, bus, 0x08); }
+void opBBS4(Cpu *cpu, Bus *bus) { handleBBS(cpu, bus, 0x10); }
+void opBBS5(Cpu *cpu, Bus *bus) { handleBBS(cpu, bus, 0x20); }
+void opBBS6(Cpu *cpu, Bus *bus) { handleBBS(cpu, bus, 0x40); }
+void opBBS7(Cpu *cpu, Bus *bus) { handleBBS(cpu, bus, 0x80); }
+
+void opBBR0(Cpu *cpu, Bus *bus) { handleBBR(cpu, bus, 0x01); }
+void opBBR1(Cpu *cpu, Bus *bus) { handleBBR(cpu, bus, 0x02); }
+void opBBR2(Cpu *cpu, Bus *bus) { handleBBR(cpu, bus, 0x04); }
+void opBBR3(Cpu *cpu, Bus *bus) { handleBBR(cpu, bus, 0x08); }
+void opBBR4(Cpu *cpu, Bus *bus) { handleBBR(cpu, bus, 0x10); }
+void opBBR5(Cpu *cpu, Bus *bus) { handleBBR(cpu, bus, 0x20); }
+void opBBR6(Cpu *cpu, Bus *bus) { handleBBR(cpu, bus, 0x40); }
+void opBBR7(Cpu *cpu, Bus *bus) { handleBBR(cpu, bus, 0x80); }
+
+
+
+void opBRK(Cpu *cpu, Bus *bus) {
+   cpu->PC +=2;
+   handleBRK(cpu, bus);
 }

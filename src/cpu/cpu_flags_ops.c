@@ -43,3 +43,28 @@ void opSEI(Cpu *cpu, Bus *bus) { // set interrupt disable status
    cpu->I = 1;
    cpu->PC += 1;
 }
+
+// transfer x to stack pointer
+void opTXS(Cpu *cpu, Bus *bus){
+   (void)bus; // Unused parameter
+   cpu->SP = cpu->X;
+   cpu->PC += 1;
+}
+// transfer stack pointer to x
+void opTSX(Cpu *cpu, Bus *bus){
+   (void)bus; // Unused parameter
+   cpu->X = cpu->SP;
+   cpu->PC += 1;
+}
+
+// push processor status on stack
+void opPHP(Cpu *cpu, Bus *bus){
+   pushStack(cpu, bus, packStatusFlags(cpu, cpu->B));
+   cpu->PC +=1;
+}
+
+// push processor status on stack
+void opPLP(Cpu *cpu, Bus *bus){
+   unpackStatusFlags(cpu, pullStack(cpu, bus));
+   cpu->PC +=1;
+}

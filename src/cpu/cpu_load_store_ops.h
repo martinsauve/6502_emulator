@@ -54,9 +54,14 @@ void opSTY_abs(Cpu*, Bus*);
 // transfers
 
 void opTAX(Cpu*, Bus*);
+void opTAY(Cpu*, Bus*);
+void opTXA(Cpu*, Bus*);
+void opTYA(Cpu*, Bus*);
 
 void opPHA(Cpu*, Bus*);
 void opPLA(Cpu*, Bus*);
 
+void opPHX(Cpu*, Bus*);
+void opPLX(Cpu*, Bus*);
 
 #endif // CPU_LOAD_STORE_OPS_H

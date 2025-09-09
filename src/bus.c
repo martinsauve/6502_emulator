@@ -36,6 +36,7 @@ int dumpRam(Bus *bus, char *filename) {
    return 0;
 }
 
+// returns number of bytes read, or -1 on error
 int loadRom(Bus *bus, const char *filename, Addr offset) {
    printf("Loading ROM from '%s' at offset 0x%04x\n", filename, offset);
    if ( offset < ROM_START ){
@@ -73,6 +74,10 @@ int loadRom(Bus *bus, const char *filename, Addr offset) {
 void busWrite(Bus *bus, Addr addr, Byte value) {
    #pragma GCC diagnostic push
    #pragma GCC diagnostic ignored "-Wtype-limits" // yes GCC, RAM_START is 0 in this case, but could be set to a different value
+
+//   if (addr >= 0x0012 && addr <= ZERO_PAGE_END){
+//      fprintf(stdout, "(write) addr 0x%04x in ram\n", addr); //NOLINT
+//     }
    if (addr >= RAM_START && addr <=RAM_END){
       bus->ram[addr - RAM_START] = value;
    } else if (addr >= ROM_START && addr <= ROM_END){
@@ -88,6 +93,9 @@ void busWrite(Bus *bus, Addr addr, Byte value) {
 Byte busRead(Bus *bus, Addr addr) {
    #pragma GCC diagnostic push
    #pragma GCC diagnostic ignored "-Wtype-limits" // yes GCC, RAM_START is 0 in this case, but could be set to a different value
+//   if (addr >= 0x0012 && addr <= ZERO_PAGE_END){
+//      fprintf(stdout, "(READ) addr 0x%04x in ram\n", addr); //NOLINT
+//     }
    if (addr >= RAM_START && addr <=RAM_END)
    {
       return bus->ram[addr - RAM_START];
@@ -98,6 +106,12 @@ Byte busRead(Bus *bus, Addr addr) {
       return aciaReadData(bus->acia);
    } else if (addr == ACIA_STATUS) {
       return aciaReadStatus(bus->acia);
+   } else if (addr == 0x6000) { // FIXME !!!
+      return 0x00;
+   } else if (addr == 0x6001) {// FIXME !!!
+      return 0x00;
+   } else if (addr == 0x6002) {// FIXME !!!
+      return 0x00;
    } else {
       fprintf(stderr, "Error: (read) addr 0x%04x currently unmapped\n", addr); //NOLINT
       return -1;

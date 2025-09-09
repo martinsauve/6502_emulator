@@ -20,5 +20,26 @@ void opJMP_ind_fixed(Cpu*, Bus*);
 
 void opJSR(Cpu*, Bus*);
 void opRTS(Cpu*, Bus*);
+void opRTI(Cpu*, Bus*);
+
+void opBBR0(Cpu *cpu, Bus *bus);
+void opBBR1(Cpu *cpu, Bus *bus);
+void opBBR2(Cpu *cpu, Bus *bus);
+void opBBR3(Cpu *cpu, Bus *bus);
+void opBBR4(Cpu *cpu, Bus *bus);
+void opBBR5(Cpu *cpu, Bus *bus);
+void opBBR6(Cpu *cpu, Bus *bus);
+void opBBR7(Cpu *cpu, Bus *bus);
+
+void opBBS0(Cpu *cpu, Bus *bus);
+void opBBS1(Cpu *cpu, Bus *bus);
+void opBBS2(Cpu *cpu, Bus *bus);
+void opBBS3(Cpu *cpu, Bus *bus);
+void opBBS4(Cpu *cpu, Bus *bus);
+void opBBS5(Cpu *cpu, Bus *bus);
+void opBBS6(Cpu *cpu, Bus *bus);
+void opBBS7(Cpu *cpu, Bus *bus);
+
+void opBRK(Cpu *cpu, Bus *bus);
 
 #endif // CPU_BRANCH_OPS_H

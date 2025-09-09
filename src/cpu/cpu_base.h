@@ -19,11 +19,11 @@ typedef enum {
 } CpuType;
 
 typedef struct Cpu {
-   Addr  PC; // Program Counter
-   Byte  SP; // Stack Pointer
-   Byte  A;  // Accumulator
-   Byte  X;  // Index Register
-   Byte  Y;  // Index Register
+   Addr  PC;   // Program Counter
+   Byte  SP;   // Stack Pointer
+   Byte  A;    // Accumulator
+   Byte  X;    // Index Register
+   Byte  Y;    // Index Register
 
    bool    C;  // Carry Flag
    bool    Z;  // Zero Flag
@@ -32,6 +32,11 @@ typedef struct Cpu {
    bool    B;  // Break Command
    bool    V;  // Overflow Flag
    bool    N;  // Negative Flag
+
+
+   bool    irq_pending; // interrupt requested
+   bool    nmi_pending; // non masquable interrupt requested
+
    CpuType type; // CPU Type
 
 } Cpu;
@@ -55,6 +60,8 @@ void sleep_ms(int milliseconds);
 
 void opUnknown(Cpu*, Bus*);
 void opNOP(Cpu*, Bus*);
+
+
 Cycles step(Cpu *cpu, Bus *bus, Opcodes *table);
 void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq);
 
@@ -66,5 +73,14 @@ void setV(Cpu *cpu, Byte a, Byte b, uint16_t result);
 
 void pushStack(Cpu*, Bus*, Byte value);
 Byte pullStack(Cpu*, Bus*);
+
+
+Byte packStatusFlags(Cpu *cpu, bool break_flag);
+void unpackStatusFlags(Cpu *cpu, Byte status);
+
+void handleIRQ(Cpu *cpu, Bus *bus);
+void handleNMI(Cpu *cpu, Bus *bus);
+void handleRTI(Cpu *cpu, Bus *bus);
+void handleBRK(Cpu *cpu, Bus *bus);
 
 #endif // CPU_BASE_H

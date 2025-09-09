@@ -78,7 +78,7 @@ void opLDA_indX(Cpu *cpu, Bus *bus) {
    cpu->PC += 2;
 }
 
-// indirect with Y offset to the addressk(0xA1)
+// indirect with Y offset to the address(0xB1)
 void opLDA_indY(Cpu *cpu, Bus *bus) {
    Byte zp_addr = busRead(bus, cpu->PC + 1);
    Addr base = busRead(bus, zp_addr) | (busRead(bus, (zp_addr + 1) & 0xFF) << 8);
@@ -307,6 +307,26 @@ void opTAX(Cpu *cpu, Bus *bus) {
    cpu->PC += 1;
 }
 
+void opTAY(Cpu *cpu, Bus *bus) {
+   (void)bus;
+   cpu->Y = cpu->A;
+   setZN(cpu, cpu->Y);
+   cpu->PC += 1;
+}
+
+void opTXA(Cpu *cpu, Bus *bus) {
+   (void)bus;
+   cpu->A = cpu->X;
+   setZN(cpu, cpu->A);
+   cpu->PC += 1;
+}
+void opTYA(Cpu *cpu, Bus *bus) {
+   (void)bus;
+   cpu->A = cpu->Y;
+   setZN(cpu, cpu->A);
+   cpu->PC += 1;
+}
+
 // push A onto stack
 void opPHA(Cpu *cpu, Bus *bus) {
    pushStack(cpu, bus, cpu->A);
@@ -317,5 +337,20 @@ void opPHA(Cpu *cpu, Bus *bus) {
 void opPLA(Cpu *cpu, Bus *bus) {
    cpu->A = pullStack(cpu, bus);
    setZN(cpu, cpu->A);
+   cpu->PC += 1;
+}
+
+
+// push X onto stack
+void opPHX(Cpu *cpu, Bus *bus) {
+   pushStack(cpu, bus, cpu->X);
+   cpu->PC += 1;
+}
+
+
+// pull X from stack
+void opPLX(Cpu *cpu, Bus *bus) {
+   cpu->X = pullStack(cpu, bus);
+   setZN(cpu, cpu->X);
    cpu->PC += 1;
 }

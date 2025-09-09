@@ -12,5 +12,9 @@ void opCLV(Cpu*, Bus*);
 void opSEC(Cpu*, Bus*);
 void opSED(Cpu*, Bus*);
 void opSEI(Cpu*, Bus*);
+void opTXS(Cpu *cpu, Bus *bus);
+void opTSX(Cpu *cpu, Bus *bus);
+void opPHP(Cpu *cpu, Bus *bus);
+void opPLP(Cpu *cpu, Bus *bus);
 
 #endif // CPU_FLAGS_OPS_H

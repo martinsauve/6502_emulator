@@ -53,11 +53,11 @@ Addr readAddr(Cpu *cpu, Bus *bus) {
 }
 
 void pushStack(Cpu *cpu, Bus *bus, Byte value) {
-   bus->ram[STACK_START + cpu->SP] = value;
+   busWrite(bus, STACK_START + cpu->SP, value);
    cpu->SP = (cpu->SP - 1) & 0xFF; // wrap around
 }
 
 Byte pullStack(Cpu *cpu, Bus *bus) {
    cpu->SP = (cpu->SP + 1) & 0xFF;
-   return bus->ram[STACK_START + cpu->SP];
+   return busRead(bus, STACK_START + cpu->SP);
 }

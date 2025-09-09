@@ -47,6 +47,9 @@ $(RAYLIB_PATH)/.downloaded:
 	tar -xzf $(RAYLIB_PATH).tar.gz -C $(RAYLIB_PATH) --strip-components=1
 	rm $(RAYLIB_PATH).tar.gz
 	touch $(RAYLIB_PATH)/.downloaded
+	@echo "================================================================================"
+	@echo "raylib successfully downloaded! Please add '$(RAYLIB_LIB)' to your LD_LIBRARY_PATH environment variable if necessary."
+	@echo "================================================================================"
 
 raylib: $(RAYLIB_PATH)/.downloaded
 

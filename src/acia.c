@@ -45,6 +45,11 @@ void aciaWriteData(Acia *acia, Byte value) {
 void pollAciaInput(Bus *bus, Cpu *cpu) {
    if (!bus->acia->input_ready) {
       int ch = bus->acia->getChar(bus->acia);
+      if (ch == 'r') {// s, save snapshot
+         dumpRam(bus, "dump.ram");
+         fflush(stdout);
+         return;
+      }
       if (ch == 's') {// s, save snapshot
          saveSnapshot(cpu, bus, "ctrlS.snap");
          fflush(stdout);
@@ -53,6 +58,7 @@ void pollAciaInput(Bus *bus, Cpu *cpu) {
       if ((ch != EOF) && (ch != '\0')) {
          bus->acia->input_buffer = (Byte)ch;
          bus->acia->input_ready = true;
+         cpu->irq_pending = true;
       }
    }
 }

@@ -138,6 +138,7 @@ int main(int argc, char *argv[]) {
 
       while (!WindowShouldClose()) {
          stepBatch(cpu, bus, opcode_table, CPU_BATCH_SIZE, CPU_FREQ);
+         //stepBatch(cpu, bus, opcode_table, 1, CPU_FREQ);
          BeginDrawing();
          rlDrawTextBuffer(&bus->acia->rlTextBuf);
          DrawText(TextFormat("PC: 0x%04X", cpu->PC), 680, 20,  10, WHITE);
