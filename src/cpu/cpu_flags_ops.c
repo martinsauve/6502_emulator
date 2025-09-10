@@ -59,7 +59,7 @@ void opTSX(Cpu *cpu, Bus *bus){
 
 // push processor status on stack
 void opPHP(Cpu *cpu, Bus *bus){
-   pushStack(cpu, bus, packStatusFlags(cpu, cpu->B));
+   pushStack(cpu, bus, packStatusFlags(cpu, true));
    cpu->PC +=1;
 }
 

@@ -300,6 +300,7 @@ void opSTY_abs(Cpu *cpu, Bus *bus) {
 }
 
 
+// transfer a to x
 void opTAX(Cpu *cpu, Bus *bus) {
    (void)bus;
    cpu->X = cpu->A;
@@ -307,6 +308,7 @@ void opTAX(Cpu *cpu, Bus *bus) {
    cpu->PC += 1;
 }
 
+// transfer a to y
 void opTAY(Cpu *cpu, Bus *bus) {
    (void)bus;
    cpu->Y = cpu->A;
@@ -314,12 +316,15 @@ void opTAY(Cpu *cpu, Bus *bus) {
    cpu->PC += 1;
 }
 
+// transfer x to a
 void opTXA(Cpu *cpu, Bus *bus) {
    (void)bus;
    cpu->A = cpu->X;
    setZN(cpu, cpu->A);
    cpu->PC += 1;
 }
+
+// transfer y to a
 void opTYA(Cpu *cpu, Bus *bus) {
    (void)bus;
    cpu->A = cpu->Y;

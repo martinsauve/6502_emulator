@@ -117,6 +117,7 @@ void opRTS(Cpu *cpu, Bus *bus) {
 void opRTI(Cpu *cpu, Bus *bus) {
    handleRTI(cpu, bus);
 }
+
 void handleBBS(Cpu *cpu, Bus *bus, Byte mask) {
    Byte zp_addr = busRead(bus, cpu->PC + 1);
    Byte rel_offset = busRead(bus, cpu->PC + 2);

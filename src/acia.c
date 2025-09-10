@@ -45,6 +45,11 @@ void aciaWriteData(Acia *acia, Byte value) {
 void pollAciaInput(Bus *bus, Cpu *cpu) {
    if (!bus->acia->input_ready) {
       int ch = bus->acia->getChar(bus->acia);
+      if (ch == 'd') {// s, save snapshot
+         dumpCpu(cpu);
+         fflush(stdout);
+         return;
+      }
       if (ch == 'r') {// s, save snapshot
          dumpRam(bus, "dump.ram");
          fflush(stdout);

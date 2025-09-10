@@ -190,6 +190,10 @@ void dumpCpu(Cpu *cpu) {
 
 // Execute a single CPU operation and return the number of cycles it took
 Cycles step(Cpu *cpu, Bus *bus, Opcodes *table){
+   if (cpu->D) {
+      fprintf(stderr, "Decimal mode not supported\n");
+      exit(1);
+   }
    if (cpu->nmi_pending) {
       handleNMI(cpu, bus);
       cpu->nmi_pending = false;
