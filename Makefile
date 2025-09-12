@@ -38,7 +38,7 @@ ROMS_BIN := $(ROMS_SOURCES:.s=.bin)
 
 .PHONY: raylib
 
-all: build roms run
+all: build roms #run
 
 $(RAYLIB_PATH)/.downloaded:
 	@mkdir -p $(RAYLIB_PATH)

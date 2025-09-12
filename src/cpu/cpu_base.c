@@ -31,12 +31,12 @@ void sleep_ms(int milliseconds){ // cross-platform sleep function
 //-----------------------------
 // HELPERS
 //-----------------------------
-void setZN(Cpu *cpu, Byte val) {
+inline void setZN(Cpu *cpu, Byte val) {
    cpu->Z = (val == 0);
    cpu->N = ( (val & 0x80) != 0 );
 }
 
-void setV(Cpu *cpu, Byte a, Byte b, uint16_t result) {
+inline void setV(Cpu *cpu, Byte a, Byte b, uint16_t result) {
    // Set Overflow flag
    // Overflow occurs if the sign of A and B are the same, but the sign of result differs
 
@@ -48,16 +48,16 @@ void setV(Cpu *cpu, Byte a, Byte b, uint16_t result) {
    // yes, dont ask me why this is so complicated, it just is.
 }
 
-Addr readAddr(Cpu *cpu, Bus *bus) {
+inline Addr readAddr(Cpu *cpu, Bus *bus) {
    return (Addr)busRead(bus, cpu->PC + 1) | ((Byte)busRead(bus, cpu->PC + 2) << 8);
 }
 
-void pushStack(Cpu *cpu, Bus *bus, Byte value) {
+inline void pushStack(Cpu *cpu, Bus *bus, Byte value) {
    busWrite(bus, STACK_START + cpu->SP, value);
    cpu->SP = (cpu->SP - 1) & 0xFF; // wrap around
 }
 
-Byte pullStack(Cpu *cpu, Bus *bus) {
+inline Byte pullStack(Cpu *cpu, Bus *bus) {
    cpu->SP = (cpu->SP + 1) & 0xFF;
    return busRead(bus, STACK_START + cpu->SP);
 }

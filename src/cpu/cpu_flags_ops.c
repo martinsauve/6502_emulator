@@ -1,6 +1,9 @@
 #include "cpu.h"
 #include "../bus.h"
 #include "../6502_types.h"
+#include <stdio.h>
+#include <stdlib.h>
+
 
 
 void opCLC(Cpu *cpu, Bus *bus) { // clear carry flag
@@ -10,6 +13,9 @@ void opCLC(Cpu *cpu, Bus *bus) { // clear carry flag
 }
 void opCLD(Cpu *cpu, Bus *bus) { // clear decimal flag
    (void)bus; // Unused parameter
+//   fprintf(stderr, "Warning: Decimal mode not supported in this implementation.\n");
+//   dumpCpu(cpu);
+//   exit(1);
    cpu->D = 0;
    cpu->PC += 1;
 }
@@ -34,6 +40,9 @@ void opSEC(Cpu *cpu, Bus *bus) { // set carry flag
 
 void opSED(Cpu *cpu, Bus *bus) { // set decimal flag
    (void)bus; // Unused parameter
+//   fprintf(stderr, "Warning: Decimal mode not supported in this implementation.\n");
+//   exit(1);
+//   dumpCpu(cpu);
    cpu->D = 1;
    cpu->PC += 1;
 }

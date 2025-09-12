@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include "../bus.h"
 #include "../6502_types.h"
+#include <stdint.h>
 #include <stdio.h>
 
 
@@ -80,14 +81,222 @@ void opINC_zpX(Cpu *cpu, Bus *bus) {
    cpu->PC += 2;
 }
 
+static inline void adc_binary(Cpu *cpu, Byte value) {
+   //printf("adc binary");
+   uint16_t sum = cpu->A + value + (cpu->C ? 1 : 0);
+   cpu->C = (sum > 0xFF);
 
+   setV(cpu, cpu->A, value, sum);
+   cpu->A = sum & 0xFF;
+   setZN(cpu, cpu->A);
+}
+
+static inline void sbc_binary(Cpu *cpu, Byte value) {
+   //printf("sbc binary");
+   uint16_t diff = cpu->A - value - (cpu->C ? 0 : 1);
+   cpu->C = (diff < 0x100);
+   setV(cpu, cpu->A, value, diff);
+   cpu->A = diff & 0xFF;
+   setZN(cpu, cpu->A);
+}
+
+static inline void adc_decimal(Cpu *cpu, Byte value) {
+   printf("adc decimal \n");
+   Byte a = cpu->A;
+   Byte c = cpu->C ? 1 : 0;
+
+   Byte lsn = (a & 0x0F) + (value & 0x0F) + c;
+   Byte msn = (a >> 4) + (value >> 4);
+
+   if (lsn > 9) {
+      lsn += 6;
+      msn += 1;
+   }
+   if (msn > 9) {
+      msn += 6;
+   }
+   Byte result = (msn << 4) | (lsn & 0x0F);
+
+   cpu->C = (msn > 15);
+   cpu->A = result;
+   setZN(cpu, result);
+}
+
+static inline void sbc_decimal(Cpu *cpu, Byte value) {
+   printf("sbc decimal\n ");
+   Byte a = cpu->A;
+   Byte c = cpu->C ? 1 : 0;
+
+   int8_t lsn = (a & 0x0F) - (value & 0x0F) - (1 - c);
+   int8_t msn = (a >> 4) - (value >> 4);
+
+   if (lsn < 0) {
+      lsn -= 6;
+      msn -= 1;
+   }
+   if (msn < 0) {
+      msn -= 6;
+   }
+
+   Byte result = ((msn << 4) & 0xF0) | (lsn & 0x0F);
+
+   cpu->C = ((int)a - (int)value - (1 - c)) >= 0;
+   cpu->A = result;
+   setZN(cpu, result);
+}
+
+void opADC_imm(Cpu *cpu, Bus *bus){
+   Byte value = busRead(bus, cpu->PC + 1);
+   if (cpu->D) {
+      adc_decimal(cpu, value);
+   } else {
+      adc_binary(cpu, value);
+   }
+   cpu->PC += 2;
+}
+
+void opADC_zp(Cpu *cpu, Bus *bus){
+   Byte addr = busRead(bus, cpu->PC + 1);
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      adc_decimal(cpu, value);
+   } else {
+      adc_binary(cpu, value);
+   }
+   cpu->PC += 2;
+}
+
+void opADC_zpX(Cpu *cpu, Bus *bus){
+   Byte addr = (busRead(bus, cpu->PC + 1) + cpu->X) & 0xFF; // wrap around
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      adc_decimal(cpu, value);
+   } else {
+      adc_binary(cpu, value);
+   }
+   cpu->PC += 2;
+}
+void opADC_abs(Cpu *cpu, Bus *bus){
+   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      adc_decimal(cpu, value);
+   } else {
+      adc_binary(cpu, value);
+   }
+   cpu->PC += 3;
+}
+
+void opADC_absX(Cpu *cpu, Bus *bus){
+   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
+   addr = (addr + cpu->X);
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      adc_decimal(cpu, value);
+   } else {
+      adc_binary(cpu, value);
+   }
+   cpu->PC += 3;
+}
+void opADC_absY(Cpu *cpu, Bus *bus){
+   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
+   addr = (addr + cpu->Y);
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      adc_decimal(cpu, value);
+   } else {
+      adc_binary(cpu, value);
+   }
+   cpu->PC += 3;
+}
+
+void opSBC_imm(Cpu *cpu, Bus *bus){
+   Byte value = busRead(bus, cpu->PC + 1);
+   if (cpu->D) {
+      sbc_decimal(cpu, value);
+   } else {
+      sbc_binary(cpu, value);
+   }
+   cpu->PC += 2;
+}
+
+void opSBC_zp(Cpu *cpu, Bus *bus){
+   Byte addr = busRead(bus, cpu->PC + 1);
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      sbc_decimal(cpu, value);
+   } else {
+      sbc_binary(cpu, value);
+   }
+   cpu->PC += 2;
+}
+void opSBC_abs(Cpu *cpu, Bus *bus){
+   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      sbc_decimal(cpu, value);
+   } else {
+      sbc_binary(cpu, value);
+   }
+   cpu->PC += 3;
+}
+
+void opSBC_zpX(Cpu *cpu, Bus *bus){
+   Byte addr = (busRead(bus, cpu->PC + 1) + cpu->X) & 0xFF; // wrap around
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      sbc_decimal(cpu, value);
+   } else {
+      sbc_binary(cpu, value);
+   }
+   cpu->PC += 2;
+}
+
+void opSBC_absX(Cpu *cpu, Bus *bus){
+   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
+   addr = (addr + cpu->X);
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      sbc_decimal(cpu, value);
+   } else {
+      sbc_binary(cpu, value);
+   }
+   cpu->PC += 3;
+}
+
+void opSBC_absY(Cpu *cpu, Bus *bus){
+   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
+   addr = (addr + cpu->Y);
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      sbc_decimal(cpu, value);
+   } else {
+      sbc_binary(cpu, value);
+   }
+   cpu->PC += 3;
+}
+
+void opSBC_indY(Cpu *cpu, Bus *bus){
+   Byte zp_addr = busRead(bus, cpu->PC + 1);
+   Addr base = busRead(bus, zp_addr) | (busRead(bus, (zp_addr + 1) & 0xFF) << 8);
+   Addr addr = (base + cpu->Y) & 0xFFFF;
+   Byte value = busRead(bus, addr);
+   if (cpu->D) {
+      sbc_decimal(cpu, value);
+   } else {
+      sbc_binary(cpu, value);
+   }
+   cpu->PC += 2;
+}
+
+/*
 void opADC_imm(Cpu *cpu, Bus *bus){
    Byte value = busRead(bus, cpu->PC + 1);
    uint16_t sum = cpu->A + value + cpu->C;
    //set carry flag
    cpu->C = (sum > 0xFF);
    //set overflow flag
-   setV(cpu, cpu->A, value, sum & 0xFF);
+   setV(cpu, cpu->A, value, sum);
 
    cpu->A = sum & 0xFF;
 
@@ -102,7 +311,7 @@ void opADC_zp(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (sum > 0xFF);
    //set overflow flag
-   setV(cpu, cpu->A, value, sum & 0xFF);
+   setV(cpu, cpu->A, value, sum);
 
    cpu->A = sum & 0xFF;
 
@@ -117,7 +326,7 @@ void opADC_zpX(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (sum > 0xFF);
    //set overflow flag
-   setV(cpu, cpu->A, value, sum & 0xFF);
+   setV(cpu, cpu->A, value, sum);
 
    cpu->A = sum & 0xFF;
 
@@ -131,7 +340,7 @@ void opADC_abs(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (sum > 0xFF);
    //set overflow flag
-   setV(cpu, cpu->A, value, sum & 0xFF);
+   setV(cpu, cpu->A, value, sum);
 
    cpu->A = sum & 0xFF;
 
@@ -147,7 +356,7 @@ void opADC_absX(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (sum > 0xFF);
    //set overflow flag
-   setV(cpu, cpu->A, value, sum & 0xFF);
+   setV(cpu, cpu->A, value, sum);
 
    cpu->A = sum & 0xFF;
 
@@ -162,7 +371,7 @@ void opADC_absY(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (sum > 0xFF);
    //set overflow flag
-   setV(cpu, cpu->A, value, sum & 0xFF);
+   setV(cpu, cpu->A, value, sum);
 
    cpu->A = sum & 0xFF;
 
@@ -176,7 +385,7 @@ void opSBC_imm(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (result < 0x100);
    //set overflow flag
-   setV(cpu, cpu->A, value, result & 0xFF);
+   setV(cpu, cpu->A, value, result);
 
    cpu->A = result & 0xFF;
 
@@ -191,7 +400,7 @@ void opSBC_zp(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (result < 0x100);
    //set overflow flag
-   setV(cpu, cpu->A, value, result & 0xFF);
+   setV(cpu, cpu->A, value, result);
 
    cpu->A = result & 0xFF;
 
@@ -205,7 +414,7 @@ void opSBC_abs(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (result < 0x100);
    //set overflow flag
-   setV(cpu, cpu->A, value, result & 0xFF);
+   setV(cpu, cpu->A, value, result);
 
    cpu->A = result & 0xFF;
 
@@ -220,7 +429,7 @@ void opSBC_zpX(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (result < 0x100);
    //set overflow flag
-   setV(cpu, cpu->A, value, result & 0xFF);
+   setV(cpu, cpu->A, value, result);
 
    cpu->A = result & 0xFF;
 
@@ -236,7 +445,7 @@ void opSBC_absX(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (result < 0x100);
    //set overflow flag
-   setV(cpu, cpu->A, value, result & 0xFF);
+   setV(cpu, cpu->A, value, result);
 
    cpu->A = result & 0xFF;
 
@@ -252,7 +461,7 @@ void opSBC_absY(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (result < 0x100);
    //set overflow flag
-   setV(cpu, cpu->A, value, result & 0xFF);
+   setV(cpu, cpu->A, value, result);
 
    cpu->A = result & 0xFF;
 
@@ -269,13 +478,14 @@ void opSBC_indY(Cpu *cpu, Bus *bus){
    //set carry flag
    cpu->C = (result < 0x100);
    //set overflow flag
-   setV(cpu, cpu->A, value, result & 0xFF);
+   setV(cpu, cpu->A, value, result);
 
    cpu->A = result & 0xFF;
 
    setZN(cpu, cpu->A);
    cpu->PC += 2;
 }
+*/
 
 void opCMP_absX(Cpu *cpu, Bus *bus) {
     Addr base = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
