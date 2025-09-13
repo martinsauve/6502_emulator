@@ -7,6 +7,18 @@
 //*******************************************
 // LOGIC AND ARITHMETIC OPERATIONS
 //*******************************************
+//
+//
+//NEW IMPLEMTATIONS
+
+void opCMP(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
+void opCPX(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
+void opCPY(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
+
+void opAND(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
+
+
+////
 
 void opDEY(Cpu *cpu, Bus *bus);
 void opDEX(Cpu *cpu, Bus *bus);

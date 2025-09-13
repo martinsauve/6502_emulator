@@ -289,279 +289,39 @@ void opSBC_indY(Cpu *cpu, Bus *bus){
    cpu->PC += 2;
 }
 
-/*
-void opADC_imm(Cpu *cpu, Bus *bus){
-   Byte value = busRead(bus, cpu->PC + 1);
-   uint16_t sum = cpu->A + value + cpu->C;
-   //set carry flag
-   cpu->C = (sum > 0xFF);
-   //set overflow flag
-   setV(cpu, cpu->A, value, sum);
+// NEW
+void opCMP(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc) {
+   AddrModeResult res = addrModeFunc(cpu, bus);
 
-   cpu->A = sum & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 2;
-}
-
-void opADC_zp(Cpu *cpu, Bus *bus){
-   Byte addr = busRead(bus, cpu->PC + 1);
-   Byte value = busRead(bus, addr);
-   uint16_t sum = cpu->A + value + cpu->C;
-   //set carry flag
-   cpu->C = (sum > 0xFF);
-   //set overflow flag
-   setV(cpu, cpu->A, value, sum);
-
-   cpu->A = sum & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 2;
-}
-
-void opADC_zpX(Cpu *cpu, Bus *bus){
-   Byte addr = (busRead(bus, cpu->PC + 1) + cpu->X) & 0xFF; // wrap around
-   Byte value = busRead(bus, addr);
-   uint16_t sum = cpu->A + value + cpu->C;
-   //set carry flag
-   cpu->C = (sum > 0xFF);
-   //set overflow flag
-   setV(cpu, cpu->A, value, sum);
-
-   cpu->A = sum & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 2;
-}
-void opADC_abs(Cpu *cpu, Bus *bus){
-   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-   Byte value = busRead(bus, addr);
-   uint16_t sum = cpu->A + value + cpu->C;
-   //set carry flag
-   cpu->C = (sum > 0xFF);
-   //set overflow flag
-   setV(cpu, cpu->A, value, sum);
-
-   cpu->A = sum & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 3;
-}
-
-void opADC_absX(Cpu *cpu, Bus *bus){
-   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-   addr = (addr + cpu->X);
-   Byte value = busRead(bus, addr);
-   uint16_t sum = cpu->A + value + cpu->C;
-   //set carry flag
-   cpu->C = (sum > 0xFF);
-   //set overflow flag
-   setV(cpu, cpu->A, value, sum);
-
-   cpu->A = sum & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 3;
-}
-void opADC_absY(Cpu *cpu, Bus *bus){
-   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-   addr = (addr + cpu->Y);
-   Byte value = busRead(bus, addr);
-   uint16_t sum = cpu->A + value + cpu->C;
-   //set carry flag
-   cpu->C = (sum > 0xFF);
-   //set overflow flag
-   setV(cpu, cpu->A, value, sum);
-
-   cpu->A = sum & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 3;
-}
-
-void opSBC_imm(Cpu *cpu, Bus *bus){
-   Byte value = busRead(bus, cpu->PC + 1);
-   uint16_t result = cpu->A - value - (cpu->C ? 0:1);
-   //set carry flag
-   cpu->C = (result < 0x100);
-   //set overflow flag
-   setV(cpu, cpu->A, value, result);
-
-   cpu->A = result & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 2;
-}
-
-void opSBC_zp(Cpu *cpu, Bus *bus){
-   Byte addr = busRead(bus, cpu->PC + 1);
-   Byte value = busRead(bus, addr);
-   uint16_t result = cpu->A - value - (cpu->C ? 0:1);
-   //set carry flag
-   cpu->C = (result < 0x100);
-   //set overflow flag
-   setV(cpu, cpu->A, value, result);
-
-   cpu->A = result & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 2;
-}
-void opSBC_abs(Cpu *cpu, Bus *bus){
-   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-   Byte value = busRead(bus, addr);
-   uint16_t result = cpu->A - value - (cpu->C ? 0:1);
-   //set carry flag
-   cpu->C = (result < 0x100);
-   //set overflow flag
-   setV(cpu, cpu->A, value, result);
-
-   cpu->A = result & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 3;
-}
-
-void opSBC_zpX(Cpu *cpu, Bus *bus){
-   Byte addr = (busRead(bus, cpu->PC + 1) + cpu->X) & 0xFF; // wrap around
-   Byte value = busRead(bus, addr);
-   uint16_t result = cpu->A - value - (cpu->C ? 0:1);
-   //set carry flag
-   cpu->C = (result < 0x100);
-   //set overflow flag
-   setV(cpu, cpu->A, value, result);
-
-   cpu->A = result & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 2;
-}
-
-void opSBC_absX(Cpu *cpu, Bus *bus){
-   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-   addr = (addr + cpu->X);
-   Byte value = busRead(bus, addr);
-   uint16_t result = cpu->A - value - (cpu->C ? 0:1);
-   //set carry flag
-   cpu->C = (result < 0x100);
-   //set overflow flag
-   setV(cpu, cpu->A, value, result);
-
-   cpu->A = result & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 3;
-}
-
-void opSBC_absY(Cpu *cpu, Bus *bus){
-   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-   addr = (addr + cpu->Y);
-   Byte value = busRead(bus, addr);
-   uint16_t result = cpu->A - value - (cpu->C ? 0:1);
-   //set carry flag
-   cpu->C = (result < 0x100);
-   //set overflow flag
-   setV(cpu, cpu->A, value, result);
-
-   cpu->A = result & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 3;
-}
-
-void opSBC_indY(Cpu *cpu, Bus *bus){
-   Byte zp_addr = busRead(bus, cpu->PC + 1);
-   Addr base = busRead(bus, zp_addr) | (busRead(bus, (zp_addr + 1) & 0xFF) << 8);
-   Addr addr = (base + cpu->Y) & 0xFFFF;
-   Byte value = busRead(bus, addr);
-   uint16_t result = cpu->A - value - (cpu->C ? 0:1);
-   //set carry flag
-   cpu->C = (result < 0x100);
-   //set overflow flag
-   setV(cpu, cpu->A, value, result);
-
-   cpu->A = result & 0xFF;
-
-   setZN(cpu, cpu->A);
-   cpu->PC += 2;
-}
-*/
-
-void opCMP_absX(Cpu *cpu, Bus *bus) {
-    Addr base = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-    Addr addr = (base + cpu->X) & 0xFFFF;
-    Byte value = busRead(bus, addr);
-    uint16_t result = cpu->A - value;
-    cpu->C = (cpu->A >= value);
-    setZN(cpu, result & 0xFF);
-    cpu->PC += 3;
-}
-
-void opCMP_indY(Cpu *cpu, Bus *bus) {
-   Byte zp_addr = busRead(bus, cpu->PC + 1);
-   Addr base = busRead(bus, zp_addr) | (busRead(bus, (zp_addr + 1) & 0xFF) << 8);
-   Addr addr = (base + cpu->Y) & 0xFFFF;
-   Byte value = busRead(bus, addr);
-   uint16_t result = cpu->A - value;
-   //set carry flag
-   cpu->C = (cpu->A >= value);
+   uint16_t result = cpu->A - res.value;
+   cpu->C = (cpu->A >= res.value);
    setZN(cpu, result & 0xFF);
-   cpu->PC += 2;
 }
 
-void opCMP_imm(Cpu *cpu, Bus *bus) {
-   Byte value = busRead(bus, cpu->PC + 1);
-   uint16_t result = cpu->A - value;
-   //set carry flag
-   cpu->C = (cpu->A >= value);
+void opCPX(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc) {
+   AddrModeResult res = addrModeFunc(cpu, bus);
+
+   uint16_t result = cpu->X - res.value;
+   cpu->C = (cpu->X >= res.value);
    setZN(cpu, result & 0xFF);
-   cpu->PC += 2;
 }
 
-void opCMP_zp(Cpu *cpu, Bus *bus) {
-   Byte addr = busRead(bus, cpu->PC + 1);
-   Byte value = busRead(bus, addr);
-   uint16_t result = cpu->A - value;
-   //set carry flag
-   cpu->C = (cpu->A >= value);
+void opCPY(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc) {
+   AddrModeResult res = addrModeFunc(cpu, bus);
+
+   uint16_t result = cpu->Y - res.value;
+   cpu->C = (cpu->Y >= res.value);
    setZN(cpu, result & 0xFF);
-   cpu->PC += 2;
-}
-void opCPX_imm(Cpu *cpu, Bus *bus) {
-   Byte value = busRead(bus, cpu->PC + 1);
-   uint16_t result = cpu->X - value;
-   //set carry flag
-   cpu->C = (cpu->X >= value);
-   setZN(cpu, result & 0xFF);
-   cpu->PC += 2;
-}
-void opCPX_zp(Cpu *cpu, Bus *bus) {
-   Byte addr = busRead(bus, cpu->PC + 1);
-   Byte value = busRead(bus, addr);
-   uint16_t result = cpu->X - value;
-   //set carry flag
-   cpu->C = (cpu->X >= value);
-   setZN(cpu, result & 0xFF);
-   cpu->PC += 2;
 }
 
-void opCPY_imm(Cpu *cpu, Bus *bus) {
-   Byte value = busRead(bus, cpu->PC + 1);
-   uint16_t result = cpu->Y - value;
-   //set carry flag
-   cpu->C = (cpu->Y >= value);
-   setZN(cpu, result & 0xFF);
-   cpu->PC += 2;
+void opAND(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc) {
+   AddrModeResult res = addrModeFunc(cpu, bus);
+
+   cpu->A &= res.value;
+   setZN(cpu, cpu->A);
 }
-void opCPY_zp(Cpu *cpu, Bus *bus) {
-   Byte addr = busRead(bus, cpu->PC + 1);
-   Byte value = busRead(bus, addr);
-   uint16_t result = cpu->Y - value;
-   //set carry flag
-   cpu->C = (cpu->Y >= value);
-   setZN(cpu, result & 0xFF);
-   cpu->PC += 2;
-}
+
+
 
 void opAND_imm(Cpu *cpu, Bus *bus) {
    Byte value = busRead(bus, cpu->PC + 1);

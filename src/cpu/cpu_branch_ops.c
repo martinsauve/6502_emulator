@@ -101,7 +101,7 @@ void opJMP_ind_fixed(Cpu *cpu, Bus *bus) {
 
 void opJSR(Cpu *cpu, Bus *bus) {
    Addr target = busRead(bus, cpu->PC +1) | (busRead(bus, cpu->PC + 2) << 8);
-   Addr ret = cpu->PC + 2;
+   Addr ret = cpu->PC + 2; // 3-1
    pushStack(cpu, bus, (ret >> 8) & 0xFF); //high byte
    pushStack(cpu, bus, ret & 0xFF); //high byte
    cpu->PC = target;
@@ -166,6 +166,6 @@ void opBBR7(Cpu *cpu, Bus *bus) { handleBBR(cpu, bus, 0x80); }
 
 
 void opBRK(Cpu *cpu, Bus *bus) {
-   cpu->PC +=2;
+   cpu->PC +=1;
    handleBRK(cpu, bus);
 }

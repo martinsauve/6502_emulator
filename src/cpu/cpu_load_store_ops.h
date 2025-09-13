@@ -7,8 +7,15 @@
 //*******************************************
 // LOAD/STORE OPERATIONS
 //*******************************************
-//LDA
+// NEW TEMPLATE FOR LOAD/STORE OPS
 void opLDA(Cpu*, Bus*, AddrModeFunc);
+void opLDX(Cpu*, Bus*, AddrModeFunc);
+void opLDY(Cpu*, Bus*, AddrModeFunc);
+void opSTA(Cpu*, Bus*, AddrModeFunc);
+void opSTX(Cpu*, Bus*, AddrModeFunc);
+void opSTY(Cpu*, Bus*, AddrModeFunc);
+
+//LDA
 void opLDA_imm(Cpu*, Bus*);
 void opLDA_zp(Cpu*, Bus*);
 void opLDA_zpX(Cpu*, Bus*);

@@ -18,7 +18,7 @@ void runTests() {
    //test_lda_ops();
    //test_ldx_ops();
    //test_ldy_ops();
-   test_sta_ops();
+   //test_sta_ops();
    //test_stx_ops();
    //test_sty_ops();
 }

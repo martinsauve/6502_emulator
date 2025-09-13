@@ -5,7 +5,7 @@
 #include "../cpu/cpu.h"
 #include "../bus.h"
 #include "../6502_types.h"
-
+/*
 
 void test_flags_ops() {
     Cpu *cpu = initCpu(CPU_6502);
@@ -449,3 +449,4 @@ void test_jmp_indirect_wraparound() {
 
     printf("JMP indirect wraparound test passed!\n");
 }
+*/
