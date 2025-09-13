@@ -11,6 +11,14 @@
 //*******************************************
 
 
+// new LDA
+void opLDA(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc)
+{
+   AddrModeResult res = addrModeFunc(cpu, bus);
+   cpu->A = res.value;
+   setZN(cpu, cpu->A);
+}
+
 
 // immediate addressing mode (0xA9)
 void opLDA_imm(Cpu *cpu, Bus *bus) {

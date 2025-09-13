@@ -8,6 +8,7 @@
 // LOAD/STORE OPERATIONS
 //*******************************************
 //LDA
+void opLDA(Cpu*, Bus*, AddrModeFunc);
 void opLDA_imm(Cpu*, Bus*);
 void opLDA_zp(Cpu*, Bus*);
 void opLDA_zpX(Cpu*, Bus*);

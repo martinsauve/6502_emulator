@@ -41,8 +41,16 @@ typedef struct Cpu {
 
 } Cpu;
 
+// forward declare, prototypes in cpu_addressing_modes.h
+
+typedef struct AddrModeResult AddrModeResult;
+typedef AddrModeResult (*AddrModeFunc)(Cpu*, Bus*);
+
 typedef struct {
    void (*handler)(Cpu*, Bus*);
+   void (*newHandler)(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+   bool usesNewHandler;
+   AddrModeFunc addrModeFunc;
    uint8_t cycles;
 } Opcodes;
 
@@ -59,7 +67,7 @@ void sleep_ms(int milliseconds);
 
 
 void opUnknown(Cpu*, Bus*);
-void opNOP(Cpu*, Bus*);
+void opNOP(Cpu*, Bus*, AddrModeFunc);
 
 
 Cycles step(Cpu *cpu, Bus *bus, Opcodes *table);

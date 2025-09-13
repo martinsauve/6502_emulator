@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include "../6502_types.h"
 #include "cpu_base.h"
+#include "cpu_addressing_modes.h"
 #include "cpu_load_store_ops.h"
 #include "cpu_branch_ops.h"
 #include "cpu_flags_ops.h"

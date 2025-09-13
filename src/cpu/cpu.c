@@ -170,10 +170,17 @@ void opUnknown(Cpu *cpu, Bus *bus){
 }
 
 // No Operation
-void opNOP(Cpu *cpu, Bus *bus) {
-   (void)bus; // Unused parameter
-   cpu->PC += 1;
+void opNOP(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc)
+{
+   (void)cpu;
+   (void)bus;
+   (void)addrModeFunc;
 }
+
+//void opNOP(Cpu *cpu, Bus *bus) {
+//   (void)bus; // Unused parameter
+//   cpu->PC += 1;
+//}
 
 
 // dump CPU state to console
@@ -198,7 +205,12 @@ Cycles step(Cpu *cpu, Bus *bus, Opcodes *table){
       cpu->irq_pending = false;
    }
    Byte op = busRead(bus, cpu->PC);
-   table[op].handler(cpu, bus);
+   if (table[op].usesNewHandler && table[op].newHandler) {
+      cpu->PC++;
+      table[op].newHandler(cpu, bus, table[op].addrModeFunc);
+   } else if (table[op].handler) {
+      table[op].handler(cpu, bus);
+   }
    return table[op].cycles;
 }
 
@@ -218,25 +230,35 @@ void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
  void initOpcodeTable(Opcodes opcode_table[256], CpuType type) {
    for (int i = 0; i < 256; i++) {
       opcode_table[i].handler = opUnknown;
+      opcode_table[i].newHandler = NULL;
+      opcode_table[i].usesNewHandler = false;
       opcode_table[i].cycles = 2;
+      opcode_table[i].addrModeFunc = NULL;
    }
 
-   opcode_table[0xEA] = (Opcodes){ .handler = opNOP, .cycles = 2 };
+   opcode_table[0xEA] = (Opcodes){ .newHandler = opNOP, .usesNewHandler = true, .addrModeFunc = addressingNone, .cycles = 2 };
 
    // *******************************************
    // LOAD/STORE OPERATIONS
    // *******************************************
 
    // LDA
-   opcode_table[0xA9] = (Opcodes){ .handler = opLDA_imm,  .cycles = 2 };
-   opcode_table[0xA5] = (Opcodes){ .handler = opLDA_zp,   .cycles = 3 };
-   opcode_table[0xB5] = (Opcodes){ .handler = opLDA_zpX,  .cycles = 4 };
-   opcode_table[0xAD] = (Opcodes){ .handler = opLDA_abs,  .cycles = 4 };
-   opcode_table[0xBD] = (Opcodes){ .handler = opLDA_absX, .cycles = 4 };
-   // TODO: or 5 if page boundary crossed
-   opcode_table[0xB9] = (Opcodes){ .handler = opLDA_absY, .cycles = 4 };
-   // TODO: or 5 if page boundary crossed
-   opcode_table[0xA1] = (Opcodes){ .handler = opLDA_indX, .cycles = 6 };
+   //opcode_table[0xA9] = (Opcodes){ .handler = opLDA_imm,  .cycles = 2 };
+   //opcode_table[0xA5] = (Opcodes){ .handler = opLDA_zp,   .cycles = 3 };
+   //opcode_table[0xAD] = (Opcodes){ .handler = opLDA_abs,  .cycles = 4 };
+   //opcode_table[0xB5] = (Opcodes){ .handler = opLDA_zpX,  .cycles = 4 };
+   //opcode_table[0xBD] = (Opcodes){ .handler = opLDA_absX, .cycles = 4 };
+   //opcode_table[0xB9] = (Opcodes){ .handler = opLDA_absY, .cycles = 4 };
+   //opcode_table[0xA1] = (Opcodes){ .handler = opLDA_indX, .cycles = 6 };
+
+   opcode_table[0xA9] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingImmediate, .cycles = 2 };
+   opcode_table[0xA5] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingZeroPage,  .cycles = 3 };
+   opcode_table[0xAD] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingAbsolute,  .cycles = 4 };
+   opcode_table[0xB5] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingZeroPageX,  .cycles = 4 };
+   opcode_table[0xBD] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingAbsoluteX,  .cycles = 4 };
+   opcode_table[0xB9] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingAbsoluteY,  .cycles = 4 };
+   opcode_table[0xA1] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingIndirectX, .cycles = 6 };
+
    opcode_table[0xB1] = (Opcodes){ .handler = opLDA_indY, .cycles = 5 };
    // TODO: or 6 if page boundary crossed }
 
