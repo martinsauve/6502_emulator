@@ -144,3 +144,21 @@ AddrModeResult addressingIndirectX(Cpu *cpu, Bus *bus)
       .has_addr = true
    };
 }
+
+// indirect with Y offset to the address
+AddrModeResult addressingIndirectY(Cpu *cpu, Bus *bus)
+{
+   Byte zp_addr = busRead(bus, cpu->PC);
+   cpu->PC ++;
+   Addr addr = busRead(bus, zp_addr) | (busRead(bus, (zp_addr + 1) & 0xFF) << 8);
+   addr = (addr + cpu->Y) & 0xFFFF;
+
+   Byte value = busRead(bus, addr);
+
+   return (AddrModeResult) {
+      .value = value,
+      .has_value = true,
+      .addr = addr,
+      .has_addr = true
+   };
+}

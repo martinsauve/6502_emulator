@@ -250,6 +250,7 @@ void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
    //opcode_table[0xBD] = (Opcodes){ .handler = opLDA_absX, .cycles = 4 };
    //opcode_table[0xB9] = (Opcodes){ .handler = opLDA_absY, .cycles = 4 };
    //opcode_table[0xA1] = (Opcodes){ .handler = opLDA_indX, .cycles = 6 };
+   //opcode_table[0xB1] = (Opcodes){ .handler = opLDA_indY, .cycles = 5 };
 
    opcode_table[0xA9] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingImmediate, .cycles = 2 };
    opcode_table[0xA5] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingZeroPage,  .cycles = 3 };
@@ -258,8 +259,8 @@ void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
    opcode_table[0xBD] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingAbsoluteX,  .cycles = 4 };
    opcode_table[0xB9] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingAbsoluteY,  .cycles = 4 };
    opcode_table[0xA1] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingIndirectX, .cycles = 6 };
+   opcode_table[0xB1] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingIndirectY, .cycles = 5 };
 
-   opcode_table[0xB1] = (Opcodes){ .handler = opLDA_indY, .cycles = 5 };
    // TODO: or 6 if page boundary crossed }
 
    // LDX

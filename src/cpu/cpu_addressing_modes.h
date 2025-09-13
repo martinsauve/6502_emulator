@@ -22,5 +22,6 @@ AddrModeResult addressingAbsolute(Cpu *cpu, Bus *bus);
 AddrModeResult addressingAbsoluteX(Cpu *cpu, Bus *bus);
 AddrModeResult addressingAbsoluteY(Cpu *cpu, Bus *bus);
 AddrModeResult addressingIndirectX(Cpu *cpu, Bus *bus);
+AddrModeResult addressingIndirectY(Cpu *cpu, Bus *bus);
 
 #endif //CPU_ADDRESSING_MODES_H
