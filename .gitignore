@@ -1,6 +1,11 @@
+third_party/raylib/
 *.o
 *.d
 6502
 tags
 *.bin
-.vimrc
+*.plist
+.cache/
+dump.ram
+ctrlS.snap
+compile_commands.json
