@@ -11,5 +11,5 @@ RlTextBuffer* rlPutNewChar(RlTextBuffer *buf, char character);
 RlTextBuffer* rlClearTextBuffer(RlTextBuffer *buf);
 void rlDrawTextBuffer(RlTextBuffer *buf);
 
-void rlTest();
+void rlTest(void);
 #endif // RL_IO

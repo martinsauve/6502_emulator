@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <fcntl.h>
@@ -12,7 +13,7 @@
 #include "snapshot.h"
 #include "rl_io.h"
 
-void runTests() {
+void runTests(void) {
    //test_jmp_indirect_wraparound();
    //test_flags_ops();
    //test_lda_ops();
@@ -24,7 +25,7 @@ void runTests() {
 }
 
 
-void enableNonBlockingInput() {
+void enableNonBlockingInput(void) {
    // Set terminal to raw mode (no buffering, no echo)
    struct termios ttystate;
    tcgetattr(STDIN_FILENO, &ttystate);
@@ -35,7 +36,7 @@ void enableNonBlockingInput() {
    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 }
-void restoreInputMode() {
+void restoreInputMode(void) {
    struct termios ttystate;
    tcgetattr(STDIN_FILENO, &ttystate);
    ttystate.c_lflag |= ICANON | ECHO; // Re-enable canonical mode and echo

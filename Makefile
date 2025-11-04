@@ -1,10 +1,11 @@
 RELEASE ?= 0
+RAYLIB_DYNAMIC ?= 0
 SRC := ./src
 ROMS := ./roms
 EXECUTABLE_NAME := 6502
 
 CC := gcc
-DEBUG_CFLAGS := -Wall -Wextra -ggdb -pedantic -Werror -Wundef -fno-common
+DEBUG_CFLAGS := -Wall -Wextra -ggdb -pedantic -Werror -Wundef -fno-common -Wno-strict-prototypes
 RELEASE_CFLAGS := -Wall -Wextra -O3 -flto
 
 RAYLIB_RELEASE_URL := https://github.com/raysan5/raylib/releases/download/5.5/raylib-5.5_linux_amd64.tar.gz
@@ -25,7 +26,11 @@ endif
 
 CFLAGS += -I$(RAYLIB_INCLUDE)
 LDFLAGS := $(CFLAGS) -L$(RAYLIB_LIB)
+ifeq ($(RAYLIB_DYNAMIC),1)
 LINKDED_LIBS := -lraylib -lm -lpthread -ldl
+else
+LINKDED_LIBS := -l:libraylib.a -lm -lpthread -ldl
+endif
 
 CFLAGS += -MMD -MP
 
@@ -36,7 +41,7 @@ ROMS_SOURCES := $(wildcard $(ROMS)/*.s) $(wildcard $(ROMS)/*/*.s)
 ROMS_BIN := $(ROMS_SOURCES:.s=.bin)
 
 
-.PHONY: raylib
+.PHONY: build roms
 
 all: build roms #run
 
@@ -64,6 +69,8 @@ roms: $(ROMS_BIN)
 %.o : %.c Makefile
 	$(CC) $(CFLAGS) -c $< -o $@
 
+linter:
+	bear -- make clean-all build
 
 build: raylib $(OBJECTS)
 	$(CC) $(LDFLAGS) -o $(EXECUTABLE_NAME) $(OBJECTS) $(LINKDED_LIBS)
