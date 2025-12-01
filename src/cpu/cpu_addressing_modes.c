@@ -162,3 +162,14 @@ AddrModeResult addressingIndirectY(Cpu *cpu, Bus *bus)
       .has_addr = true
    };
 }
+
+AddrModeResult addressingAccumulator(Cpu *cpu, Bus *bus)
+{
+   (void)bus;
+
+   return (AddrModeResult) {
+         .value = cpu->A,
+         .has_value = true,
+         .has_addr = false
+   };
+}
