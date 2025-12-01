@@ -99,9 +99,7 @@ static inline void sbc_binary(Cpu *cpu, Byte value) {
    cpu->A = diff & 0xFF;
    setZN(cpu, cpu->A);
 }
-
 static inline void adc_decimal(Cpu *cpu, Byte value) {
-   printf("adc decimal \n");
    Byte a = cpu->A;
    Byte c = cpu->C ? 1 : 0;
 
@@ -109,18 +107,21 @@ static inline void adc_decimal(Cpu *cpu, Byte value) {
    Byte msn = (a >> 4) + (value >> 4);
 
    if (lsn > 9) {
-      lsn += 6;
+      lsn -= 10;
       msn += 1;
    }
    if (msn > 9) {
-      msn += 6;
+      msn -= 10;
+      cpu->C = 1;
+   } else {
+      cpu->C = 0;
    }
-   Byte result = (msn << 4) | (lsn & 0x0F);
 
-   cpu->C = (msn > 15);
+   Byte result = (msn << 4) | (lsn & 0x0F);
    cpu->A = result;
    setZN(cpu, result);
 }
+
 
 static inline void sbc_decimal(Cpu *cpu, Byte value) {
    printf("sbc decimal\n ");
@@ -131,11 +132,12 @@ static inline void sbc_decimal(Cpu *cpu, Byte value) {
    int8_t msn = (a >> 4) - (value >> 4);
 
    if (lsn < 0) {
-      lsn -= 6;
+      lsn += 10;
       msn -= 1;
    }
    if (msn < 0) {
-      msn -= 6;
+      msn += 10;
+      cpu->C = 0;
    }
 
    Byte result = ((msn << 4) & 0xF0) | (lsn & 0x0F);
@@ -470,18 +472,20 @@ void opASL_A(Cpu *cpu, Bus *bus) {
 }
 void opASL_zp(Cpu *cpu, Bus *bus) {
    Byte zp_addr = busRead(bus, cpu->PC + 1);
-   Byte value = busRead(bus, zp_addr)<<1;
-   cpu->C = ( (cpu->A & 0x80) != 0 );
-   cpu->A = value;
-   setZN(cpu, cpu->A);
+   Byte old_value = busRead(bus, zp_addr);
+   cpu->C = ( (old_value & 0x80) != 0 );
+   Byte result = old_value << 1;
+   busWrite(bus, zp_addr, result);
+   setZN(cpu, result);
    cpu->PC += 2;
 }
 
 void opASL_zpX(Cpu *cpu, Bus *bus) {
    Byte zp_addr = (busRead(bus, cpu->PC + 1) + cpu->X) & 0xFF; // wrap around
-   Byte value = busRead(bus, zp_addr)<<1;
-   cpu->C = ( (cpu->A & 0x80) != 0 );
-   cpu->A = value;
+   Byte old_value = busRead(bus, zp_addr);
+   cpu->C = ( (old_value & 0x80) != 0 );
+   Byte result = old_value << 1;
+   busWrite(bus, zp_addr, result);
    setZN(cpu, cpu->A);
    cpu->PC += 2;
 }
