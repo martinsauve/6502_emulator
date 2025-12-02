@@ -1,3 +1,6 @@
+#ifndef CPU_H
+#define CPU_H
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "../6502_types.h"
@@ -8,8 +11,6 @@
 #include "cpu_flags_ops.h"
 #include "cpu_math_ops.h"
 
-#ifndef CPU_H
-#define CPU_H
 
 
 #endif // CPU_H

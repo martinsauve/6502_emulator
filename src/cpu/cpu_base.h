@@ -1,9 +1,9 @@
+#ifndef CPU_BASE_H
+#define CPU_BASE_H
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "../6502_types.h"
-
-#ifndef CPU_BASE_H
-#define CPU_BASE_H
 
 
 #define CPU_FREQ         1000000

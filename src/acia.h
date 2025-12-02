@@ -1,9 +1,9 @@
+#ifndef ACIA_H
+#define ACIA_H
+
 #include <stdint.h>
 #include "rl_io.h"
 #include "6502_types.h"
-
-#ifndef ACIA_H
-#define ACIA_H
 
 #define ACIA_DATA    0x5000
 #define ACIA_STATUS  0x5001
@@ -22,12 +22,8 @@ typedef struct Acia{
    RlTextBuffer rlTextBuf;
 } Acia;
 
-#ifndef CPU_H
 typedef struct Cpu Cpu;
-#endif
-#ifndef BUS_H
 typedef struct Bus Bus;
-#endif
 
 
 void pollAciaInput(Bus *bus, Cpu *cpu);

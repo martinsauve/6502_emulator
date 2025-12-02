@@ -1,9 +1,10 @@
+#ifndef BUS_H
+#define BUS_H
+
 #include <stdint.h>
 #include "6502_types.h"
 #include "acia.h"
 
-#ifndef BUS_H
-#define BUS_H
 
 #define BUS_SIZE     0x10000
 #define RAM_SIZE     0x4000 // 16K of RAM

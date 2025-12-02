@@ -1,10 +1,10 @@
+#ifndef TESTS_CPU_H
+#define TESTS_CPU_H
+
 #include <stdint.h>
 #include "../cpu/cpu.h"
 #include "../bus.h"
 
-
-#ifndef TESTS_CPU_H
-#define TESTS_CPU_H
 void test_lda_ops(void);
 void test_ldx_ops(void);
 void test_ldy_ops(void);

@@ -1,9 +1,10 @@
+#ifndef CPU_LOAD_STORE_OPS_H
+#define CPU_LOAD_STORE_OPS_H
+
 #include "../bus.h"
 #include "../6502_types.h"
 #include "cpu_base.h"
 
-#ifndef CPU_LOAD_STORE_OPS_H
-#define CPU_LOAD_STORE_OPS_H
 //*******************************************
 // LOAD/STORE OPERATIONS
 //*******************************************

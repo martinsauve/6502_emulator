@@ -1,9 +1,11 @@
+#ifndef CPU_MATH_OPS_H
+#define CPU_MATH_OPS_H
+
 #include "../bus.h"
 #include "../6502_types.h"
 #include "cpu_base.h"
 
-#ifndef CPU_MATH_OPS_H
-#define CPU_MATH_OPS_H
+
 //*******************************************
 // LOGIC AND ARITHMETIC OPERATIONS
 //*******************************************

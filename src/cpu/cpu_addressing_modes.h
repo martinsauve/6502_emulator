@@ -1,8 +1,8 @@
-#include "cpu_base.h"
-#include "../bus.h"
-
 #ifndef CPU_ADDRESSING_MODES_H
 #define CPU_ADDRESSING_MODES_H
+
+#include "cpu_base.h"
+#include "../bus.h"
 
 typedef struct AddrModeResult {
    Byte value;
