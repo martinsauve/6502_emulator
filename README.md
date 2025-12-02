@@ -10,6 +10,7 @@ This code is *NOT* good, it is *NOT* meant to replace any other existing emulato
 Yes, I know there are hundreds of 6502 emulators floating around, but this one is mine! To be honest I am not interested by retro gaming or console emulation,
 i started this project after watching [Ben Eater's](https://www.youtube.com/@BenEater) series on his 6502 based breadboard computer and being completely fascinated by it.
 What you see so far has been written in about 8 days, I have yet to finish implement the opcodes or even a correct mainloop but I feel like the base architecture is there!
+Edit: LOL, it's been months and I still haven't finished it... but this is now able to run Microsoft BASIC! the target is now feature parity with Ben Eater's breadboard computer.
 
 
 # How it works
