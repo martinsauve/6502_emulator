@@ -6,6 +6,7 @@ tags
 *.bin
 *.plist
 .cache/
+.ccls-cache/
 dump.ram
 ctrlS.snap
 compile_commands.json
