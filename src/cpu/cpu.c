@@ -8,32 +8,11 @@
 #include "../acia.h"
 
 
-
-// initialize a CPU structure
-Cpu* initCpu(CpuType type) {
-   Cpu *cpu = NULL;
-   cpu = malloc(sizeof *cpu);
-
-   cpu->PC = 0;
-   cpu->SP = 0x00;
-   cpu->A  = 0;
-   cpu->X  = 0;
-   cpu->Y  = 0;
-
-   cpu->C  = 0;
-   cpu->Z  = 0;
-   cpu->I  = 1;
-   cpu->D  = 0;
-   cpu->B  = 0;
-   cpu->V  = 0;
-   cpu->N  = 0;
-
-   cpu->irq_pending = 0;
-   cpu->nmi_pending = 0;
-
+Cpu *initCpu(CpuType type) {
+   Cpu *cpu = calloc(1, sizeof(Cpu));
+   cpu->I = 1;
    cpu->type = type;
    return cpu;
-
 }
 
 
