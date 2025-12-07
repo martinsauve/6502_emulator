@@ -25,8 +25,8 @@ void runTests(void) {
 }
 
 
+// Set terminal to raw mode (no buffering, no echo)
 void enableNonBlockingInput(void) {
-   // Set terminal to raw mode (no buffering, no echo)
    struct termios ttystate;
    tcgetattr(STDIN_FILENO, &ttystate);
    ttystate.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
@@ -36,6 +36,8 @@ void enableNonBlockingInput(void) {
    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 }
+
+// Restore terminal to original mode
 void restoreInputMode(void) {
    struct termios ttystate;
    tcgetattr(STDIN_FILENO, &ttystate);
@@ -103,7 +105,7 @@ int main(int argc, char *argv[]) {
 
    if (!rom_path && !snapshot_path) {
       printf("No ROM or snapshot provided! attempting to load default ROM\n");
-      rom_path = "roms/wozmon.bin";
+      rom_path = "roms/wozmon.bin"; // TODO: do not hardcode here
    }
 
 //#define DEBUG

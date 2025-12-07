@@ -1,3 +1,16 @@
+#TODO:
+
+- [ ] introduce some kind of config file format:
+      - cpu type (6502 or 65C02)
+      - frequency
+      - default rom path
+      - bindings for snapshot
+      - other hardware config
+      - default options for all the command line flags
+- [ ] Finish porting the opcodes to the new mechanism
+      - and then remove the usesNewHandler bullshit
+- [ ] find other roms that utilize all the opcodes (some kinda functionnal tests would be great)
+
 # :warning: Disclaimer
 
 **DO NOT USE YET, PROJECT NOT FINISHED! ALL OPCODES ARENT EVEN IMPLEMENTED...**
