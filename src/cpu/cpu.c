@@ -324,8 +324,8 @@ void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
 
 
    // STACK
-   opcode_table[0x08] = (Opcodes){ .handler = opPHP, .cycles = 3 };
-   opcode_table[0x28] = (Opcodes){ .handler = opPLP, .cycles = 4 };
+   opcode_table[0x08] = (Opcodes){ .newHandler = opPHP, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 3 };
+   opcode_table[0x28] = (Opcodes){ .newHandler = opPLP, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 4 };
    opcode_table[0x48] = (Opcodes){ .handler = opPHA, .cycles = 3 };
    opcode_table[0x68] = (Opcodes){ .handler = opPLA, .cycles = 4 };
 
@@ -339,15 +339,15 @@ void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
    opcode_table[0x40] = (Opcodes){ .handler = opRTI, .cycles = 6 };
 
    // FLAGS
-   opcode_table[0x18] = (Opcodes){ .handler = opCLC, .cycles = 2 };
-   opcode_table[0xD8] = (Opcodes){ .handler = opCLD, .cycles = 2 };
-   opcode_table[0x58] = (Opcodes){ .handler = opCLI, .cycles = 2 };
-   opcode_table[0xB8] = (Opcodes){ .handler = opCLV, .cycles = 2 };
-   opcode_table[0x38] = (Opcodes){ .handler = opSEC, .cycles = 2 };
-   opcode_table[0xF8] = (Opcodes){ .handler = opSED, .cycles = 2 };
-   opcode_table[0x78] = (Opcodes){ .handler = opSEI, .cycles = 2 };
-   opcode_table[0x9A] = (Opcodes){ .handler = opTXS, .cycles = 2 };
-   opcode_table[0xBA] = (Opcodes){ .handler = opTSX, .cycles = 2 };
+   opcode_table[0x18] = (Opcodes){ .newHandler = opCLC, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 2 };
+   opcode_table[0xD8] = (Opcodes){ .newHandler = opCLD, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 2 };
+   opcode_table[0x58] = (Opcodes){ .newHandler = opCLI, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 2 };
+   opcode_table[0xB8] = (Opcodes){ .newHandler = opCLV, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 2 };
+   opcode_table[0x38] = (Opcodes){ .newHandler = opSEC, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 2 };
+   opcode_table[0xF8] = (Opcodes){ .newHandler = opSED, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 2 };
+   opcode_table[0x78] = (Opcodes){ .newHandler = opSEI, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 2 };
+   opcode_table[0x9A] = (Opcodes){ .newHandler = opTXS, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 2 };
+   opcode_table[0xBA] = (Opcodes){ .newHandler = opTSX, .usesNewHandler=true, .addrModeFunc=addressingNone, .cycles = 2 };
 
    // ARITHMETIC
    opcode_table[0xC9]   = (Opcodes){.newHandler = opCMP,   .usesNewHandler = true, .addrModeFunc=addressingImmediate, .cycles = 2};

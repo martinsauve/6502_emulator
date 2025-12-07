@@ -5,16 +5,16 @@
 #include "../6502_types.h"
 #include "cpu_base.h"
 
-void opCLC(Cpu*, Bus*);
-void opCLD(Cpu*, Bus*);
-void opCLI(Cpu*, Bus*);
-void opCLV(Cpu*, Bus*);
-void opSEC(Cpu*, Bus*);
-void opSED(Cpu*, Bus*);
-void opSEI(Cpu*, Bus*);
-void opTXS(Cpu *cpu, Bus *bus);
-void opTSX(Cpu *cpu, Bus *bus);
-void opPHP(Cpu *cpu, Bus *bus);
-void opPLP(Cpu *cpu, Bus *bus);
+void opCLC(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+void opCLD(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+void opCLI(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+void opCLV(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+void opSEC(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+void opSED(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+void opSEI(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+void opTXS(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+void opTSX(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+void opPHP(Cpu*, Bus*, AddrModeFunc addrModeFunc);
+void opPLP(Cpu*, Bus*, AddrModeFunc addrModeFunc);
 
 #endif // CPU_FLAGS_OPS_H
