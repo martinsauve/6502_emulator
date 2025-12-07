@@ -324,68 +324,16 @@ void opAND(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc) {
 }
 
 
+// TODO: implement immediate addressing mode for BIT that affects only the Z flag
+void opBIT(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc) {
+   AddrModeResult res = addrModeFunc(cpu, bus);
 
-void opAND_imm(Cpu *cpu, Bus *bus) {
-   Byte value = busRead(bus, cpu->PC + 1);
-   cpu->A &= value;
-   setZN(cpu, cpu->A);
-   cpu->PC += 2;
-}
-
-void opAND_zp(Cpu *cpu, Bus *bus) {
-   Byte addr = busRead(bus, cpu->PC + 1);
-   Byte value = busRead(bus, addr);
-   cpu->A &= value;
-   setZN(cpu, cpu->A);
-   cpu->PC += 2;
-}
-
-void opAND_abs(Cpu *cpu, Bus *bus) {
-   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-   Byte value = busRead(bus, addr);
-   cpu->A &= value;
-   setZN(cpu, cpu->A);
-   cpu->PC += 3;
-}
-void opAND_absX(Cpu *cpu, Bus *bus) {
-   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-   addr = (addr + cpu->X);
-   Byte value = busRead(bus, addr);
-   cpu->A &= value;
-   setZN(cpu, cpu->A);
-   cpu->PC += 3;
-}
-
-void opBIT_abs(Cpu *cpu, Bus *bus) {
-   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-   Byte value = busRead(bus, addr);
-   Byte result = cpu->A & value;
+   Byte result = cpu->A & res.value;
    cpu->Z = (result == 0 );
-   cpu->N = (value & 0x80) != 0;
-   cpu->V = (value & 0x40) != 0;
-   cpu->PC += 3;
+   cpu->N = (res.value & 0x80) != 0;
+   cpu->V = (res.value & 0x40) != 0;
 }
 
-void opBIT_absX(Cpu *cpu, Bus *bus) {
-   Addr addr = busRead(bus, cpu->PC + 1) | (busRead(bus, cpu->PC + 2) << 8);
-   addr = (addr + cpu->X);
-   Byte value = busRead(bus, addr);
-   Byte result = cpu->A & value;
-   cpu->Z = (result == 0 );
-   cpu->N = (value & 0x80) != 0;
-   cpu->V = (value & 0x40) != 0;
-   cpu->PC += 3;
-}
-
-void opBIT_zp(Cpu *cpu, Bus *bus) {
-   Byte addr = busRead(bus, cpu->PC + 1);
-   Byte value = busRead(bus, addr);
-   Byte result = cpu->A & value;
-   cpu->Z = (result == 0 );
-   cpu->N = (value & 0x80) != 0;
-   cpu->V = (value & 0x40) != 0;
-   cpu->PC += 2;
-}
 
 void opEOR_zp(Cpu *cpu, Bus *bus) {
    Byte addr = busRead(bus, cpu->PC + 1);

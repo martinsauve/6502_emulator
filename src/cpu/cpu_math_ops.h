@@ -18,6 +18,7 @@ void opCPX(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
 void opCPY(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
 
 void opAND(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
+void opBIT(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
 
 
 ////
@@ -50,26 +51,7 @@ void opSBC_absY(Cpu *cpu, Bus *bus);
 void opSBC_indY(Cpu *cpu, Bus *bus);
 void opSBC_imm(Cpu *cpu, Bus *bus);
 
-void opCMP_imm(Cpu *cpu, Bus *bus);
-void opCMP_zp(Cpu *cpu, Bus *bus);
-void opCMP_indY(Cpu *cpu, Bus *bus);
 
-void opCPX_imm(Cpu *cpu, Bus *bus);
-void opCPX_zp(Cpu *cpu, Bus *bus);
-
-void opCPY_imm(Cpu *cpu, Bus *bus);
-void opCPY_zp(Cpu *cpu, Bus *bus);
-
-
-void opAND_imm(Cpu *cpu, Bus *bus);
-
-
-void opCMP_absX(Cpu *cpu, Bus *bus);
-
-void opAND_abs(Cpu *cpu, Bus *bus);
-void opAND_absX(Cpu *cpu, Bus *bus);
-
-void opAND_zp(Cpu *cpu, Bus *bus);
 
 void opEOR_imm(Cpu *cpu, Bus *bus);
 void opEOR_zp(Cpu *cpu, Bus *bus);
@@ -86,10 +68,6 @@ void opROL_zpX(Cpu *cpu, Bus *bus);
 void opROR_A(Cpu *cpu, Bus *bus);
 void opROR_zp(Cpu *cpu, Bus *bus);
 void opROR_zpX(Cpu *cpu, Bus *bus);
-
-void opBIT_zp(Cpu *cpu, Bus *bus);
-void opBIT_abs(Cpu *cpu, Bus *bus);
-void opBIT_absX(Cpu *cpu, Bus *bus);
 
 void opASL_A(Cpu *cpu, Bus *bus);
 void opASL_zp(Cpu *cpu, Bus *bus);
