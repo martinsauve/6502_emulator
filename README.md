@@ -1,4 +1,4 @@
-#TODO:
+# TODO:
 
 - [ ] introduce some kind of config file format:
       - cpu type (6502 or 65C02)
