@@ -19,6 +19,7 @@ void opCPY(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
 
 void opAND(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
 void opBIT(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
+void opEOR(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc);
 
 
 ////

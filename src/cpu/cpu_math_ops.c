@@ -334,6 +334,12 @@ void opBIT(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc) {
    cpu->V = (res.value & 0x40) != 0;
 }
 
+void opEOR(Cpu *cpu, Bus *bus, AddrModeFunc addrModeFunc) {
+   AddrModeResult res = addrModeFunc(cpu, bus);
+
+   cpu->A ^= res.value;
+   setZN(cpu, cpu->A);
+}
 
 void opEOR_zp(Cpu *cpu, Bus *bus) {
    Byte addr = busRead(bus, cpu->PC + 1);

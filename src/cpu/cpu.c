@@ -208,14 +208,14 @@ void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
 
  void initOpcodeTable(Opcodes opcode_table[256], CpuType type) {
    for (int i = 0; i < 256; i++) {
-      opcode_table[i].handler = opUnknown;
-      opcode_table[i].newHandler = NULL;
+      opcode_table[i].handler        = opUnknown;
+      opcode_table[i].newHandler     = NULL;
       opcode_table[i].usesNewHandler = false;
-      opcode_table[i].cycles = 2;
-      opcode_table[i].addrModeFunc = NULL;
+      opcode_table[i].cycles         = 2;
+      opcode_table[i].addrModeFunc   = NULL;
    }
 
-   opcode_table[0xEA] = (Opcodes){ .newHandler = opNOP,    .usesNewHandler = true, .addrModeFunc = addressingNone, .cycles = 2 };
+   opcode_table[0xEA] = (Opcodes){ .newHandler = opNOP , .usesNewHandler = true , .addrModeFunc = addressingNone , .cycles = 2 };
 
    // *******************************************
    // LOAD/STORE OPERATIONS
@@ -223,51 +223,51 @@ void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
 
    // LDA
 
-   opcode_table[0xA9] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingImmediate, .cycles = 2 };
-   opcode_table[0xA5] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingZeroPage,  .cycles = 3 };
-   opcode_table[0xAD] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingAbsolute,  .cycles = 4 };
-   opcode_table[0xB5] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingZeroPageX,  .cycles = 4 };
-   opcode_table[0xBD] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingAbsoluteX,  .cycles = 4 };
-   opcode_table[0xB9] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingAbsoluteY,  .cycles = 4 };
-   opcode_table[0xA1] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingIndirectX, .cycles = 6 };
-   opcode_table[0xB1] = (Opcodes){ .newHandler = opLDA,   .usesNewHandler = true, .addrModeFunc = addressingIndirectY, .cycles = 5 };
+   opcode_table[0xA9] = (Opcodes){ .newHandler = opLDA , .usesNewHandler = true , .addrModeFunc = addressingImmediate , .cycles = 2 };
+   opcode_table[0xA5] = (Opcodes){ .newHandler = opLDA , .usesNewHandler = true , .addrModeFunc = addressingZeroPage  , .cycles = 3 };
+   opcode_table[0xAD] = (Opcodes){ .newHandler = opLDA , .usesNewHandler = true , .addrModeFunc = addressingAbsolute  , .cycles = 4 };
+   opcode_table[0xB5] = (Opcodes){ .newHandler = opLDA , .usesNewHandler = true , .addrModeFunc = addressingZeroPageX , .cycles = 4 };
+   opcode_table[0xBD] = (Opcodes){ .newHandler = opLDA , .usesNewHandler = true , .addrModeFunc = addressingAbsoluteX , .cycles = 4 };
+   opcode_table[0xB9] = (Opcodes){ .newHandler = opLDA , .usesNewHandler = true , .addrModeFunc = addressingAbsoluteY , .cycles = 4 };
+   opcode_table[0xA1] = (Opcodes){ .newHandler = opLDA , .usesNewHandler = true , .addrModeFunc = addressingIndirectX , .cycles = 6 };
+   opcode_table[0xB1] = (Opcodes){ .newHandler = opLDA , .usesNewHandler = true , .addrModeFunc = addressingIndirectY , .cycles = 5 };
 
    // TODO: or 6 if page boundary crossed
 
    // LDX
-   opcode_table[0xA2] = (Opcodes){ .newHandler = opLDX,   .usesNewHandler = true, .addrModeFunc = addressingImmediate, .cycles = 2 };
-   opcode_table[0xA6] = (Opcodes){ .newHandler = opLDX,   .usesNewHandler = true, .addrModeFunc = addressingZeroPage,  .cycles = 3 };
-   opcode_table[0xB6] = (Opcodes){ .newHandler = opLDX,   .usesNewHandler = true, .addrModeFunc = addressingZeroPageY,  .cycles = 4 };
-   opcode_table[0xAE] = (Opcodes){ .newHandler = opLDX,   .usesNewHandler = true, .addrModeFunc = addressingAbsolute,  .cycles = 4 };
-   opcode_table[0xBE] = (Opcodes){ .newHandler = opLDX,   .usesNewHandler = true, .addrModeFunc = addressingAbsoluteY,  .cycles = 4 };
+   opcode_table[0xA2] = (Opcodes){ .newHandler = opLDX , .usesNewHandler = true , .addrModeFunc = addressingImmediate , .cycles = 2 };
+   opcode_table[0xA6] = (Opcodes){ .newHandler = opLDX , .usesNewHandler = true , .addrModeFunc = addressingZeroPage  , .cycles = 3 };
+   opcode_table[0xB6] = (Opcodes){ .newHandler = opLDX , .usesNewHandler = true , .addrModeFunc = addressingZeroPageY , .cycles = 4 };
+   opcode_table[0xAE] = (Opcodes){ .newHandler = opLDX , .usesNewHandler = true , .addrModeFunc = addressingAbsolute  , .cycles = 4 };
+   opcode_table[0xBE] = (Opcodes){ .newHandler = opLDX , .usesNewHandler = true , .addrModeFunc = addressingAbsoluteY , .cycles = 4 };
    // +1 if page crossed
 
    // LDY
-   opcode_table[0xA0] = (Opcodes){ .newHandler = opLDY,   .usesNewHandler = true, .addrModeFunc = addressingImmediate, .cycles = 2 };
-   opcode_table[0xA4] = (Opcodes){ .newHandler = opLDY,   .usesNewHandler = true, .addrModeFunc = addressingZeroPage,  .cycles = 3 };
-   opcode_table[0xB4] = (Opcodes){ .newHandler = opLDY,   .usesNewHandler = true, .addrModeFunc = addressingZeroPageX,  .cycles = 4 };
-   opcode_table[0xAC] = (Opcodes){ .newHandler = opLDY,   .usesNewHandler = true, .addrModeFunc = addressingAbsolute,  .cycles = 4 };
-   opcode_table[0xBC] = (Opcodes){ .newHandler = opLDY,   .usesNewHandler = true, .addrModeFunc = addressingAbsoluteX,  .cycles = 4 };
+   opcode_table[0xA0] = (Opcodes){ .newHandler = opLDY , .usesNewHandler = true , .addrModeFunc = addressingImmediate , .cycles = 2 };
+   opcode_table[0xA4] = (Opcodes){ .newHandler = opLDY , .usesNewHandler = true , .addrModeFunc = addressingZeroPage  , .cycles = 3 };
+   opcode_table[0xB4] = (Opcodes){ .newHandler = opLDY , .usesNewHandler = true , .addrModeFunc = addressingZeroPageX , .cycles = 4 };
+   opcode_table[0xAC] = (Opcodes){ .newHandler = opLDY , .usesNewHandler = true , .addrModeFunc = addressingAbsolute  , .cycles = 4 };
+   opcode_table[0xBC] = (Opcodes){ .newHandler = opLDY , .usesNewHandler = true , .addrModeFunc = addressingAbsoluteX , .cycles = 4 };
    // +1 if page crossed
 
    // STA
-   opcode_table[0x85] = (Opcodes){ .newHandler = opSTA, .usesNewHandler = true, .addrModeFunc = addressingZeroPage ,.cycles = 3 };
-   opcode_table[0x95] = (Opcodes){ .newHandler = opSTA, .usesNewHandler = true, .addrModeFunc = addressingZeroPageX ,.cycles = 4 };
-   opcode_table[0x8D] = (Opcodes){ .newHandler = opSTA, .usesNewHandler = true, .addrModeFunc = addressingAbsolute ,.cycles = 4 };
-   opcode_table[0x9D] = (Opcodes){ .newHandler = opSTA, .usesNewHandler = true, .addrModeFunc = addressingAbsoluteX ,.cycles = 5 };
-   opcode_table[0x99] = (Opcodes){ .newHandler = opSTA, .usesNewHandler = true, .addrModeFunc = addressingAbsoluteY ,.cycles = 5 };
-   opcode_table[0x81] = (Opcodes){ .newHandler = opSTA, .usesNewHandler = true, .addrModeFunc = addressingIndirectX ,.cycles = 6 };
-   opcode_table[0x91] = (Opcodes){ .newHandler = opSTA, .usesNewHandler = true, .addrModeFunc = addressingIndirectY ,.cycles = 6 };
+   opcode_table[0x85] = (Opcodes){ .newHandler = opSTA , .usesNewHandler = true , .addrModeFunc = addressingZeroPage  , .cycles = 3 };
+   opcode_table[0x95] = (Opcodes){ .newHandler = opSTA , .usesNewHandler = true , .addrModeFunc = addressingZeroPageX , .cycles = 4 };
+   opcode_table[0x8D] = (Opcodes){ .newHandler = opSTA , .usesNewHandler = true , .addrModeFunc = addressingAbsolute  , .cycles = 4 };
+   opcode_table[0x9D] = (Opcodes){ .newHandler = opSTA , .usesNewHandler = true , .addrModeFunc = addressingAbsoluteX , .cycles = 5 };
+   opcode_table[0x99] = (Opcodes){ .newHandler = opSTA , .usesNewHandler = true , .addrModeFunc = addressingAbsoluteY , .cycles = 5 };
+   opcode_table[0x81] = (Opcodes){ .newHandler = opSTA , .usesNewHandler = true , .addrModeFunc = addressingIndirectX , .cycles = 6 };
+   opcode_table[0x91] = (Opcodes){ .newHandler = opSTA , .usesNewHandler = true , .addrModeFunc = addressingIndirectY , .cycles = 6 };
 
    // STX
-   opcode_table[0x86] = (Opcodes){ .newHandler = opSTX, .usesNewHandler = true, .addrModeFunc = addressingZeroPage, .cycles = 3 };
-   opcode_table[0x96] = (Opcodes){ .newHandler = opSTX, .usesNewHandler = true, .addrModeFunc = addressingZeroPageY, .cycles = 4 };
-   opcode_table[0x8E] = (Opcodes){ .newHandler = opSTX, .usesNewHandler = true, .addrModeFunc = addressingAbsolute, .cycles = 4 };
+   opcode_table[0x86] = (Opcodes){ .newHandler = opSTX , .usesNewHandler = true , .addrModeFunc = addressingZeroPage  , .cycles = 3 };
+   opcode_table[0x96] = (Opcodes){ .newHandler = opSTX , .usesNewHandler = true , .addrModeFunc = addressingZeroPageY , .cycles = 4 };
+   opcode_table[0x8E] = (Opcodes){ .newHandler = opSTX , .usesNewHandler = true , .addrModeFunc = addressingAbsolute  , .cycles = 4 };
 
    // STY
-   opcode_table[0x84] = (Opcodes){ .newHandler = opSTY, .usesNewHandler = true, .addrModeFunc = addressingZeroPage, .cycles = 3 };
-   opcode_table[0x94] = (Opcodes){ .newHandler = opSTY, .usesNewHandler = true, .addrModeFunc = addressingZeroPageX, .cycles = 4 };
-   opcode_table[0x8C] = (Opcodes){ .newHandler = opSTY, .usesNewHandler = true, .addrModeFunc = addressingAbsolute, .cycles = 4 };
+   opcode_table[0x84] = (Opcodes){ .newHandler = opSTY , .usesNewHandler = true , .addrModeFunc = addressingZeroPage  , .cycles = 3 };
+   opcode_table[0x94] = (Opcodes){ .newHandler = opSTY , .usesNewHandler = true , .addrModeFunc = addressingZeroPageX , .cycles = 4 };
+   opcode_table[0x8C] = (Opcodes){ .newHandler = opSTY , .usesNewHandler = true , .addrModeFunc = addressingAbsolute  , .cycles = 4 };
 
    // TRANSFER
 
@@ -358,8 +358,8 @@ void stepBatch(Cpu *cpu, Bus *bus, Opcodes *table, int batch_size, float freq) {
    opcode_table[0x2C] = (Opcodes){ .newHandler = opBIT, .usesNewHandler = true, .addrModeFunc = addressingAbsolute,  .cycles = 4 };
    opcode_table[0x3C] = (Opcodes){ .newHandler = opBIT, .usesNewHandler = true, .addrModeFunc = addressingAbsoluteX, .cycles = 4 };
 
-   opcode_table[0x49] = (Opcodes){ .handler = opEOR_imm,  .cycles = 2 };
-   opcode_table[0x45] = (Opcodes){ .handler = opEOR_zp,   .cycles = 2 };
+   opcode_table[0x49] = (Opcodes){ .newHandler = opEOR , .usesNewHandler = true , .addrModeFunc = addressingImmediate , .cycles = 2 };
+   opcode_table[0x45] = (Opcodes){ .newHandler = opEOR , .usesNewHandler = true , .addrModeFunc = addressingZeroPage  , .cycles = 2 };
 
    opcode_table[0x0A] = (Opcodes){ .handler = opASL_A,    .cycles = 2 };
    opcode_table[0x06] = (Opcodes){ .handler = opASL_zp,   .cycles = 5 };
